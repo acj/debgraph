@@ -3,7 +3,7 @@ LIBS=
 LDFLAGS=
 CXX=g++
 TARGET=debgraph
-DEPMAKER=fastdep
+DEPMAKER=$(shell which fastdep || echo "$(CXX) -MM")
 
 SOURCES=$(shell ls *.cc)
 OBJECTS=$(subst .cc,.o,$(SOURCES))
