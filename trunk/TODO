@@ -13,7 +13,6 @@ Requirements Engineering
 
 General
 -------
-+ roll "run" script into Makefile
 + support clean scripts
 + make the download sources configurable somehow
 
