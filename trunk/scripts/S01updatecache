@@ -1,0 +1,29 @@
+#!/bin/sh
+
+echo "Updating cache..."
+
+if [[ -e cache/trace ]]; then
+	cachedate=`cat cache/trace | sed -e "s/  / /" | cut -d " " -f 1-3`
+	now=`date | sed -e "s/  / /" | cut -d " " -f 1-3`
+	if [[ "$cachedate" = "$now" ]]; then
+		exit 0;
+	fi
+fi
+
+rsync ftp2.de.debian.org::debian/project/trace/ftp-master.debian.org cache/trace
+
+rsync --recursive --delete --exclude "debian-installer/" --include  "*/" --include "Packages.gz" --include "Sources.gz" --include "Release" --exclude "*" ftp2.de.debian.org::debian/dists/unstable/ cache/unstable > /dev/null
+
+# remove empty directories
+for ((i=0;i<=15;i+=1)); do
+	find cache -empty -exec rmdir '{}' \; 2> /dev/null
+done
+
+# uncompress, but leave compressed files in place
+for gzfile in `find cache -name "*.gz"`; do
+	file=`echo $gzfile | sed -e s/\.gz//`;
+	zcat $gzfile > $file
+done
+#find cache -name "*.gz" -exec gunzip -f '{}' \;
+
+echo $now > cache/trace

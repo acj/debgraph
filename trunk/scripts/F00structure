@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "Generating structure diagram..."
+dot -Gepsilon=.0000001 -Gstart=6 -Goverlap=false -Gsplines=true -Gsep=3 -Tpng out/structure.dot -o out/structure.png

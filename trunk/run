@@ -1,0 +1,12 @@
+#!/bin/sh
+
+echo "Running setup scripts..."
+for s in `find scripts -name "S*" | sort`; do
+	$s
+done
+echo "Running debgraph..."
+./debgraph
+echo "Running final scripts..."
+for s in `find scripts -name "F*" | sort`; do
+	$s
+done
