@@ -6,6 +6,7 @@ Requirements Engineering
 + read through policy and make a list of all things there that we can 
   eventually check with this tool
 + make a list of other tools that do similar things 
+  + this includes aptitude, even has a functional language
 + check them and add additional tests that they do to our list
 + identify parties that might be interested in using such a tool (e.g. QA and
   release mgmt)
