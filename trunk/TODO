@@ -1,5 +1,8 @@
 T O D O
 =======
+Things to do are marked with an "+", done items should be "-". feel free to use
+this as a notepad about ideas and problems. Please note that there is a separate
+todo list for the SOC work
 
 Requirements Engineering
 ------------------------
@@ -10,11 +13,11 @@ Requirements Engineering
 + check them and add additional tests that they do to our list
 + identify parties that might be interested in using such a tool (e.g. QA and
   release mgmt)
-+ talk to them about ideas they have
++ talk to them about ideas they have, also to other people that might have
+  ideas
 
 General
 -------
-+ support clean scripts
 + make the download sources configurable somehow
 
 Code
@@ -26,3 +29,5 @@ Code
 + state machine operator
 + functional language using these ops
 + better output structuring
++ make sure the structure output is readable by collapsing multiple edges that
+  always occur together into one

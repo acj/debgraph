@@ -1,2 +1,31 @@
 R E A D M E
 ===========
+Debgraph is intended to be a generic graph analysis framework suitable to find
+interesting constellations in the debian package dependency graph. In order to
+do so, it builds a massive directed graph with typed nodes and edges, and
+name-value properties on both. A set of standard operators can be combined with
+generic C++ code and scripting to create meaningfull output
+
+Building
+--------
+Should be straight forward: run make. Should not require anything that is not
+build-essential, should you encounter any problems (e.g. incompatibilities with
+a compiler), shout. A fancier build system is probably needed at some point, but
+in the moment the simplicity of the current one is quite nice
+
+Running
+-------
+a "make run" will do the trick. this will first run all scripts in "scripts"
+that start with an "S" (Start) in their lexical order (think init...), then run
+the debgraph executable and then all the "F" (Finish) scripts. The Finish
+scripts are supposed to do things like convert images etc. The most important
+"S" script is the one that downloads the packages files (and others). It will
+download a fairly large amount of data, so you might not want to run it over and
+over again. In the moment it will not update the data if it is not older than a
+day, during development i just stick in another "exit 0" to make sure it never
+downloads anything. There are also "C" scripts that are used to clean up. The
+results of the run will be found in "out".
+
+Extending
+---------
+Please have a look at "HACKING"
