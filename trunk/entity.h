@@ -50,7 +50,6 @@ class Entity {
 		EntityType getType();
 		void setType(EntityType eType);
 		string getTypeString();
-
 };
 
 #endif /* ENTITY_H */
