@@ -24,19 +24,15 @@ clean:
 	rm -f $(TARGET)
 	rm -f .depend
 	-echo "Running cleanup scripts..."
-	-for s in `find scripts -name "C*" | sort`; do $$s; done
+	-for s in `find scripts -name "C*" | grep -v "\.svn" | sort`; do $$s; done
 
 run: $(TARGET)
 	-echo "Running setup scripts..."
-	-for s in `find scripts -name "S*" | sort`; do
-		-$s
-	-done
+	-for s in `find scripts -name "S*" | grep -v "\.svn" | sort`; do $$s; done
 	-echo "Running debgraph..."
 	-./debgraph
 	-echo "Running final scripts..."
-	-for s in `find scripts -name "F*" | sort`; do
-		-$s
-	-done
+	-for s in `find scripts -name "F*" | grep -v "\.svn" | sort`; do $$s; done
 
 -include .depend
 
