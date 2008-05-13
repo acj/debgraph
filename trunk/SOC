@@ -1,0 +1,29 @@
+S U M M E R   O F   C O D E
+===========================
+Student: Adam Jensen <acj@cse.msu.edu>
+Mentor: Robert Lemmen <robertle@semistable.com>
+
+This is basically the TODO list for the SOC work. As always, items to be
+completed are marked with an "+", done items are "-". This list is subject to
+change during the work.
+
++ checkout the code and make sure it builds and runs on your machine. set up a
+  comfortable working environment
++ take this list, identify dependencies between items and reorder to your
+  liking. please note that it might be a good idea to have a deep pipeline as
+  you might need to wait on people every now and then. larger items or sets of
+  smaller ones should have a time budget associated
++ find potential problems that we need to write tests for: read through policy,
+  check other tools and talk to people who might have ideas
++ talk to people about debgraph, they might have input. this is also important
+  because we need to "sell" this a little bit
++ based on these findings, define the set of operators, their interface and what
+  types of things they return. talk over with mentor.
++ implement them. this is a "milestone delivery"
++ perhaps one or more operators will be quite complicated and require a smal
+  parser (e.g. something like a state machine), so be prepared for the work
++ sketch up a language that can be used to query the graph. talk over with
+  mentor
++ implement it. "milestone delivery"
++ small pdf text or presentation that explains debgraph to a potential user (who
+  might need convincing)
