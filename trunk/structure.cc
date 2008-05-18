@@ -26,6 +26,35 @@ void Structure::run(Graph &g) {
 	
 	multimap<string, Node*> nIndex = g.getIndex();
 	set<string> sDeps;
+	// insert standard edges that replace some others 
+	sDeps.insert("BINARY -> BINARYNAME [ label = \"(pre)dep, recommends, suggests\" ]");
+	sDeps.insert("BINARY -> OR [ label = \"(pre)dep, recommends, suggests\" ]");
+	sDeps.insert("BINARY -> VIRTUAL [ label = \"(pre)dep, recommends, suggests\" ]");
+	sDeps.insert("OR -> VIRTUAL [ label = \"(pre)dep, recommends, suggests\" ]");
+	sDeps.insert("OR -> BINARYNAME [ label = \"(pre)dep, recommends, suggests\" ]");
+	// which ones to remove from graph
+	set<string> blacklist;
+	blacklist.insert("BINARY -> BINARYNAME [ label = \"DEPENDS\" ]");
+	blacklist.insert("BINARY -> BINARYNAME [ label = \"PRE_DEPENDS\" ]");
+	blacklist.insert("BINARY -> BINARYNAME [ label = \"RECOMMENDS\" ]");
+	blacklist.insert("BINARY -> BINARYNAME [ label = \"SUGGESTS\" ]");
+	blacklist.insert("BINARY -> OR [ label = \"DEPENDS\" ]");
+	blacklist.insert("BINARY -> OR [ label = \"PRE_DEPENDS\" ]");
+	blacklist.insert("BINARY -> OR [ label = \"RECOMMENDS\" ]");
+	blacklist.insert("BINARY -> OR [ label = \"SUGGESTS\" ]");
+	blacklist.insert("BINARY -> VIRTUAL [ label = \"DEPENDS\" ]");
+	blacklist.insert("BINARY -> VIRTUAL [ label = \"PRE_DEPENDS\" ]");
+	blacklist.insert("BINARY -> VIRTUAL [ label = \"RECOMMENDS\" ]");
+	blacklist.insert("BINARY -> VIRTUAL [ label = \"SUGGESTS\" ]");
+	blacklist.insert("OR -> VIRTUAL [ label = \"DEPENDS\" ]");
+	blacklist.insert("OR -> VIRTUAL [ label = \"PRE_DEPENDS\" ]");
+	blacklist.insert("OR -> VIRTUAL [ label = \"RECOMMENDS\" ]");
+	blacklist.insert("OR -> VIRTUAL [ label = \"SUGGESTS\" ]");
+	blacklist.insert("OR -> BINARYNAME [ label = \"DEPENDS\" ]");
+	blacklist.insert("OR -> BINARYNAME [ label = \"PRE_DEPENDS\" ]");
+	blacklist.insert("OR -> BINARYNAME [ label = \"RECOMMENDS\" ]");
+	blacklist.insert("OR -> BINARYNAME [ label = \"SUGGESTS\" ]");
+
 	for (multimap<string, Node*>::iterator i = nIndex.begin();
 		i != nIndex.end(); i++) {
 		Node *n = i->second;
@@ -47,7 +76,9 @@ void Structure::run(Graph &g) {
 			string toNodeType = cNode->getTypeString();
 			string dep = fromNodeType + " -> " + toNodeType + 
 				" [ label = \"" + edgeType + "\" ]";
-			sDeps.insert(dep);
+			if (blacklist.find(dep) == blacklist.end()) {
+				sDeps.insert(dep);
+			}
 		}
 	}
 	for (set<string>::iterator i = sDeps.begin(); i != sDeps.end(); i++) {

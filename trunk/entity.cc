@@ -96,7 +96,7 @@ string Entity::getTypeString() {
 		case Entity::CONFLICTS:
 			return "CONFLICTS";
 		case Entity::SUGGESTS:
-			return "SUGESTS";
+			return "SUGGESTS";
 		case Entity::RECOMMENDS:
 			return "RECOMMENDS";
 		case Entity::PROVIDED:
