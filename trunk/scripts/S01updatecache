@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ $DEBGRAPH_NOUPDATE ]; then
+	echo "Not updating cache!"
+	exit 0;
+fi
+
 echo "Updating cache..."
 
 if [[ -e cache/trace ]]; then
