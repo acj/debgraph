@@ -29,5 +29,3 @@ Code
 + state machine operator
 + functional language using these ops
 + better output structuring
-+ make sure the structure output is readable by collapsing multiple edges that
-  always occur together into one
