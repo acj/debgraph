@@ -5,7 +5,7 @@ Graph::Graph() {
 
 Graph::~Graph() {
 	Node *n;
-	multimap<string, Node*>::iterator i;
+	GraphIndexT::iterator i;
 	while (index.size() > 0) {
 		i = index.begin();
 		n = (*i).second;
@@ -15,7 +15,7 @@ Graph::~Graph() {
 }
 		
 Node* Graph::addNode(Node *node, AddFlag flag) {
-	multimap<string, Node*>::iterator i = index.find(node->getId());
+	GraphIndexT::iterator i = index.find(node->getId());
 	if (i != index.end()) {
 		if (flag == FAIL_DUP) {
 			throw "duplicate node";
@@ -31,7 +31,7 @@ Node* Graph::addNode(Node *node, AddFlag flag) {
 }
 
 Node* Graph::findNode(const string &id) {
-	multimap<string, Node*>::iterator i = index.find(id);
+	GraphIndexT::iterator i = index.find(id);
 	if (i != index.end()) {
 		return i->second;
 	}
@@ -39,7 +39,7 @@ Node* Graph::findNode(const string &id) {
 }
 
 bool Graph::hasNode(const string &id) {
-	multimap<string, Node*>::iterator i = index.find(id);
+	GraphIndexT::iterator i = index.find(id);
 	return (i != index.end());
 }
 
@@ -47,6 +47,21 @@ int Graph::size() {
 	return index.size();
 }
 
-multimap<string, Node*>& Graph::getIndex() {
+GraphIndexT& Graph::getIndex() {
 	return index;
+}
+
+/* Iterator-related members */
+GraphIterator &Graph::begin() {
+	GraphIndexIteratorT index_iter = index.begin();
+	GraphIterator *iter = new GraphIterator();
+	iter->setIndexIterator(index_iter);
+	return *iter;
+}
+
+GraphIterator &Graph::end() {
+	GraphIndexIteratorT index_iter = index.end();
+	GraphIterator *iter = new GraphIterator();
+	iter->setIndexIterator(index_iter);
+	return *iter;
 }

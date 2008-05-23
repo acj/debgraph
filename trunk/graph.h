@@ -2,10 +2,14 @@
 #define GRAPH_H
 
 #include <map>
-
 #include "node.h"
+#include "graph.h"
+#include "graphiterator.h"
+#include "graph_types.h"
 
 using namespace std;
+
+class GraphIterator;
 
 class Graph {
 	public:
@@ -13,15 +17,17 @@ class Graph {
 				IGNORE_DUP,
 				DISCARD_DUP};
 	protected:
-		/* would be cool if this could be a hash_multimap */
-		multimap<string, Node*> index;
+		GraphIndexT index;
 	public:
+		friend class GraphIterator;
 		Graph();
 		~Graph();
-		Node *addNode(Node *node, AddFlag flag = FAIL_DUP);
+		Node* addNode(Node *node, AddFlag flag = FAIL_DUP);
 		Node* findNode(const string &id);
 		bool hasNode(const string &id);
-		multimap<string, Node*>& getIndex();
+		GraphIndexT &getIndex();
+		GraphIterator &begin();
+		GraphIterator &end();
 		int size();
 };
 

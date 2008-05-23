@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-
+#include "graph_types.h"
 #include "nulltest.h"
 	
 string NullTest::getName() {
@@ -13,11 +13,9 @@ void NullTest::run(Graph &g) {
 	ofile.open("out/nulltest.html");
 	
 	int edgecount = 0;
-
-	multimap<string, Node*> nIndex = g.getIndex();
-	for (multimap<string, Node*>::iterator i = nIndex.begin();
-		i != nIndex.end(); i++) {
-		Node *n = i->second;
+	
+	for (GraphIterator i = g.begin(); i != g.end(); ++i) {
+		Node *n = *i;
 		set<Edge*> edges = n->getOutEdges();
 		edgecount += edges.size();
 	}

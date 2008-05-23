@@ -1,0 +1,26 @@
+D E B G R A P H
+===============
+
+- Overview -
+
+DebGraph is a tool that provides a simple, intuitive interface to the
+Debian package graph.  The package graph contains information about
+packages (name, version, description, etc), their dependencies, and
+other useful details.  By providing an easy way to interact with this
+graph, DebGraph enables useful analyses that can identify interesting or
+problematic constellations.
+
+As an example, it is helpful for the Debian QA team to track cyclic
+dependencies (that is, packages that [in]directly depend on themselves).
+Such dependency cycles can be symptoms of package problems, and
+therefore it is important that there is tool support for locating and
+tracking them.
+
+To date, many tools have been written to perform various tasks that
+involve analyzing Debian packages.  The `lintian' tool performs tests on
+packages to ensure that they are complete.  `Britney', another package
+analysis tool, assists the release and quality assurance teams by
+verifying package dependencies before promoting packages from the
+`unstable' distribution to `testing'.
+
+
