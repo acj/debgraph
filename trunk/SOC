@@ -16,11 +16,21 @@ change during the work.
 + find potential problems that we need to write tests for: read through policy,
   check other tools and talk to people who might have ideas
 	+ Verify that nothing depends on Essential packages
+	+ Look for loops among Essential packages (from vorlon on NMTask list)
 	+ Verify that a runtime library's version matches the version of its
 	  corresponding -dev package
 + talk to people about debgraph, they might have input. this is also important
   because we need to "sell" this a little bit
 	* Completed by 10 June
+	+ Bill Allombert would like to be able to check upgrade paths
+		* Generate a set of packages that can be installed together
+		  (without conflicting dependencies)
+		* Formally:
+			Given a family of sets Etch=S_1 U S_2 U S_3 U ... S_n
+			Card(S_i)=1000
+			n is not too far from Card(Etch)/1000
+		* Then install each set S_i (with dependencies) and upgrade it
+		  to Lenny
 + based on these findings, define the set of operators, their interface and what
   types of things they return. talk over with mentor.  make a decision
   on the set of operators to implement by 15 June.
