@@ -28,7 +28,7 @@ class Test {
 		void addItem(string filename, string menuPath, string comment);
 	public:
 		virtual string getName() = 0;
-		virtual void run(Graph &g) = 0;
+		virtual bool run(Graph &g) = 0;
 		virtual ~Test();
 };
 
@@ -44,7 +44,7 @@ class TestKit {
 	public:
 		static TestKit* instance();
 		TestKit *addTest(Test *t);
-		void run(Graph &g);
+		bool run(Graph &g);
 		void createIndex(ostream &of);
 };
 

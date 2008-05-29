@@ -5,7 +5,7 @@
 
 class UnionTest : public Test {
 	public:
-		void run(Graph &g);
+		bool run(Graph &g);
 		inline string getName() { return "UnionTest"; }
 };
 

@@ -8,7 +8,7 @@ string NullTest::getName() {
 	return "NullTest";
 }
 
-void NullTest::run(Graph &g) {
+bool NullTest::run(Graph &g) {
 	ofstream ofile;
 	ofile.open("out/nulltest.html");
 	
@@ -54,4 +54,5 @@ void NullTest::run(Graph &g) {
 
 	ofile.close();
 	addItem("nulltest.html", "", "Graph Statistics");
+	return true;
 }

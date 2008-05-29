@@ -6,7 +6,7 @@
 class Structure: public Test {
 	public:
 		string getName();
-		void run(Graph &g);
+		bool run(Graph &g);
 };
 
 static TestKit *_tk = TestKit::instance()->addTest(new Structure());

@@ -44,13 +44,22 @@ TestKit* TestKit::addTest(Test *t) {
 	return this;
 }
 
-void TestKit::run(Graph &g) {
+bool TestKit::run(Graph &g) {
+	bool overall_result = true;
+	bool test_result;
 	list<Test*>::iterator i;
 	for (i = tests.begin(); i != tests.end(); i++) {
-		cout << "Running " << (*i)->getName() << "..." << endl;
-		(*i)->run(g);
+		cout << "Running " << (*i)->getName() << "...";
+		test_result = (*i)->run(g);
+		if (test_result == false) {
+			cerr << "FAIL" << endl;
+			overall_result = false;
+		}
+		else {
+			cout << "PASS" << endl;
+		}
 	}
-	
+	return overall_result;
 }
 		
 void Test::addItem(string filename, string menuPath, string comment) {

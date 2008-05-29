@@ -18,7 +18,12 @@ int main(int argc, char *argv[]) {
 	DebianGraph g("cache"); ;
 	ofile << endl;
 	
-	TestKit::instance()->run(g);
+	if (TestKit::instance()->run(g) == false) {
+		cout << "At least one test failed!" << endl;
+	}
+	else {
+		cout << "All tests passed." << endl;
+	}
 	TestKit::instance()->createIndex(ofile);
 
 	ofile << "<br><font size=\"-1\">Problems? Robert Lemmen &lt;<a href=\"mailtourobertle@semistable.com\">robertle@semistable.com</a>&gt;</font>" << endl;

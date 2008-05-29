@@ -4,7 +4,7 @@
 #include "union.h"
 #include "uniontest.h"
 
-void UnionTest::run(Graph &g) {
+bool UnionTest::run(Graph &g) {
 	Graph *g1 = new Graph();
 	Graph *g2 = new Graph();
 
@@ -35,5 +35,6 @@ void UnionTest::run(Graph &g) {
 	}
 
 	addItem("uniontest.html", "", "UnionTest");
+	return true;
 }
 

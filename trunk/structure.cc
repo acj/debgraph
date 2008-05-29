@@ -9,7 +9,7 @@ string Structure::getName() {
 	return "Structure";
 }
 
-void Structure::run(Graph &g) {
+bool Structure::run(Graph &g) {
 	ofstream ofile;
 	ofile.open("out/structure.html");
 	
@@ -104,4 +104,5 @@ void Structure::run(Graph &g) {
 
 	ofile.close();
 	addItem("structure.html", "", "Graph Template Structure");
+	return true;
 }
