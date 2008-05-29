@@ -180,7 +180,12 @@ void addDependency(Node *n, Graph *g, string dep, Entity::EntityType type) {
 		string d2 = dep.substr(pos + 1);
 		Node *name;
 		if (n->getType() != Entity::OR) {
-			name = new Node("");
+			static int or_node_salt = 0;
+			char salt[10];
+			sprintf(salt, "%d", ++or_node_salt);
+			string or_name("Or:");
+			or_name += salt;
+			name = new Node(or_name);
 			name->setType(Entity::OR);
 			name = g->addNode(name, Graph::IGNORE_DUP);
 			Edge::createEdge(n, name, type);
