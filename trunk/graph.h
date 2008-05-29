@@ -22,6 +22,8 @@ class Graph {
 		friend class GraphIterator;
 		Graph();
 		~Graph();
+		Graph(Graph&);
+		Graph& operator=(Graph&);
 		Node* addNode(Node *node, AddFlag flag = FAIL_DUP);
 		Node* findNode(const string &id);
 		bool hasNode(const string &id);

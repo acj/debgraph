@@ -6,6 +6,13 @@ Node::Node() {
 	id = "";
 }
 
+Node::Node(Node &node) {
+	id = node.id;
+	dfs = node.dfs;
+	low = node.low;
+	mark = node.mark;
+}
+
 Node::Node(const string &nodeId) {
 	mark = 0;
 	id = nodeId;
@@ -19,7 +26,15 @@ Node::~Node() {
 		delete(*outEdges.begin());
 	}
 }
-		
+
+Node& Node::operator=(Node &n) {
+	id = n.id;
+	dfs = n.dfs;
+	low = n.low;
+	mark = n.mark;
+	return *this;
+}
+
 void Node::setId(string &nid) {
 	id = nid;
 }

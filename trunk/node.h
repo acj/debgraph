@@ -18,8 +18,10 @@ class Node : public Entity {
 		int mark;
 	public:
 		Node();
+		Node(Node&);
 		Node(const string &nodeId);
 		~Node();
+		Node& operator=(Node&);
 		const string& getId();
 		void setId(string &nid);
 		void setDfs(int d);

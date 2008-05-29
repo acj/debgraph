@@ -8,12 +8,18 @@ Union::~Union() {
 }
 
 Graph* Union::execute() {
-	Graph* result_graph = new Graph();
-	for (GraphIterator i = l_operand.begin(); i != l_operand.end(); ++i) {
-		result_graph->addNode(*i, Graph::DISCARD_DUP);
+	// Begin with a copy of the result graph
+	Graph *result, *smaller;
+	if (l_operand.size() > r_operand.size()) {
+		result = new Graph(l_operand);
+		smaller = new Graph(r_operand);
 	}
-	for (GraphIterator i = r_operand.begin(); i != r_operand.end(); ++i) {
-		result_graph->addNode(*i, Graph::DISCARD_DUP);
+	else {
+		result = new Graph(r_operand);
+		smaller = new Graph(l_operand);
 	}
-	return result_graph;
+	for (GraphIterator i = smaller->begin(); i != smaller->end(); ++i) {
+		result->addNode(*i, Graph::DISCARD_DUP);
+	}
+	return result;
 }
