@@ -21,7 +21,7 @@ Graph::Graph(Graph &g) {
 		oldNearNodeId = old_node_entry.first;
 		oldNearNode = old_node_entry.second;
 		newNearNode = index.find(oldNearNodeId)->second;
-		for (set<Edge*>::const_iterator iter = oldNearNode->getOutEdges().begin();
+		for (set<Edge*>::iterator iter = oldNearNode->getOutEdges().begin();
 				iter != oldNearNode->getOutEdges().end();
 				++iter) {
 			oldFarNode = (Node *)(*iter)->getToNode();
@@ -100,4 +100,14 @@ GraphIterator &Graph::end() {
 	GraphIterator *iter = new GraphIterator();
 	iter->setIndexIterator(index_iter);
 	return *iter;
+}
+
+string Graph::toGraphviz() {
+	string output("digraph \"DebGraph Output\" {\n");
+	output += "nodesep=0.1\n";
+	for (GraphIterator iter = this->begin(); iter != this->end(); ++iter) {
+		output += (*iter)->toGraphviz();
+	}
+	output += "}";
+	return output;
 }

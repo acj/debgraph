@@ -41,6 +41,7 @@ class Entity {
 		static set<string> stringcache;
 	public:
 		void printcache();
+		virtual ~Entity();
 		Entity();
 		void addProperty(const string &key, const string &value);
 		void replaceProperty(const string &key, const string &value);
@@ -50,6 +51,7 @@ class Entity {
 		EntityType getType();
 		void setType(EntityType eType);
 		string getTypeString();
+		virtual string toGraphviz();
 };
 
 #endif /* ENTITY_H */

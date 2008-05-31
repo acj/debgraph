@@ -15,6 +15,9 @@ Entity::Entity() {
 	type = NONE;
 }
 
+Entity::~Entity() {
+}
+
 void Entity::addProperty(const string &key, const string &value) {
 	if (!hasProperty(key)) {
 		replaceProperty(key, value);
@@ -110,4 +113,8 @@ string Entity::getTypeString() {
 		default:
 			return "INVALID";
 	}
+}
+
+string Entity::toGraphviz() {
+	return string("");
 }

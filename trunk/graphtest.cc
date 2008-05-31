@@ -1,3 +1,4 @@
+#include <fstream>
 #include <iostream>
 #include "graph_types.h"
 #include "graph.h"
@@ -20,6 +21,11 @@ bool GraphTest::run(Graph &g) {
 		Entity::CONTAINS, Edge::IGNORE_DUP);
 	e = Edge::createEdge(componentNameNode, componentNode,
 		Entity::HAS_INSTANCE, Edge::IGNORE_DUP);
+	
+	ofstream dotfile;
+	dotfile.open("out/graphtest-orig.dot");
+	dotfile << g1->toGraphviz();
+	dotfile.close();
 
 	// XXX Make sure that edges cannot exist between different graphs
 	
@@ -33,6 +39,11 @@ bool GraphTest::run(Graph &g) {
 		cout << "\n\tFailed to copy Graph object." << endl;
 		return false;
 	}
+
+	dotfile.open("out/graphtest-copy.dot");
+	dotfile << g1_copy->toGraphviz();
+	dotfile.close();
+	
 	delete g1_copy;
 	return true;
 }

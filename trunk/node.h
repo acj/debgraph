@@ -10,6 +10,7 @@
 using namespace std;
 
 class Node : public Entity {
+	private:
 		string id;
 		set<Edge*> outEdges;
 		set<Edge*> inEdges;
@@ -32,6 +33,7 @@ class Node : public Entity {
 		int getMark();
 		set<Edge*>& getInEdges();
 		set<Edge*>& getOutEdges();
+		string toGraphviz();
 };
 
 #endif /* NODE_H */

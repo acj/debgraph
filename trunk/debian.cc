@@ -365,7 +365,6 @@ DebianGraph::DebianGraph(string cachedir) {
 		fixArchitecture(n, this);
 		fixRelease(n, this);
 	}
-	
 }
 
 DebianGraph::~DebianGraph() {

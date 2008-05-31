@@ -55,9 +55,9 @@ bool Structure::run(Graph &g) {
 	blacklist.insert("OR -> BINARYNAME [ label = \"RECOMMENDS\" ]");
 	blacklist.insert("OR -> BINARYNAME [ label = \"SUGGESTS\" ]");
 
-	for (multimap<string, Node*>::iterator i = nIndex.begin();
-		i != nIndex.end(); i++) {
-		Node *n = i->second;
+	Node *n;
+	for (GraphIterator i = g.begin(); i != g.end(); ++i) {
+		n = *i;
 		if (n->getType() == Entity::COMPONENTNAME) {
 			comps.insert(n->getId());
 		}

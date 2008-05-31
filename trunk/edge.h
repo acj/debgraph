@@ -20,6 +20,7 @@ class Edge : public Entity {
 			Entity::EntityType type, CreateFlag flag = NOCHECK_DUP);
 		const Node *getFromNode();
 		const Node *getToNode();
+		string toGraphviz();
 };
 		
 #endif /* EDGE_H */

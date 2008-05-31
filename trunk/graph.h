@@ -31,6 +31,7 @@ class Graph {
 		GraphIterator &begin();
 		GraphIterator &end();
 		int size();
+		string toGraphviz();
 };
 
 #endif /* GRAPH_H */

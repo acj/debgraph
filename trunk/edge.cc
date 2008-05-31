@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <stdint.h>
 #include "edge.h"
 #include "node.h"
 
@@ -46,4 +46,15 @@ const Node *Edge::getFromNode() {
 
 const Node *Edge::getToNode() {
 	return to;
+}
+
+string Edge::toGraphviz() {
+	char source_gid[10], sink_gid[10];
+	// Use pointer value as unique id
+	sprintf(source_gid, "%u", (unsigned int)from);
+	sprintf(sink_gid, "%u", (unsigned int)to);
+	string output("\t node");
+	output += source_gid + string(" -> node") + sink_gid;
+	output += " [ label = \"" + this->getTypeString() + "\" ];\n";
+	return output;
 }

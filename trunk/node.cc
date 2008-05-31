@@ -74,4 +74,14 @@ void Node::setMark(int m) {
 int Node::getMark() {
 	return mark;
 }
-		
+
+string Node::toGraphviz() {
+	string output("\tnode");
+	char node_id_salt[10];
+	sprintf(node_id_salt, "%u", (unsigned int)this);
+	output += string(node_id_salt) + " [ label = \"" + id + "\" ];\n";
+	for (set<Edge*>::iterator i = outEdges.begin(); i != outEdges.end(); ++i) {
+		output += (*i)->toGraphviz();	
+	}
+	return output;
+}
