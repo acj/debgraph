@@ -22,7 +22,7 @@ bool UnionTest::run(Graph &g) {
 	// g2
 	Node *componentNode_g2 = new Node("Component:semistable:main");
 	componentNode_g2->setType(Entity::COMPONENTNAME);
-	componentNode_g2 = g2->addNode(componentNode, Graph::DISCARD_DUP);
+	componentNode_g2 = g2->addNode(componentNode_g2, Graph::DISCARD_DUP);
 	// edges
 	e = Edge::createEdge(releaseNode, componentNode, 
 		Entity::CONTAINS, Edge::IGNORE_DUP);
