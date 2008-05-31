@@ -26,7 +26,7 @@ Graph::Graph(Graph &g) {
 				++iter) {
 			oldFarNode = (Node *)(*iter)->getToNode();
 			newFarNode = index.find(oldFarNode->getId())->second;
-			newEdge = Edge::createEdge(newNearNode, newFarNode, oldFarNode->getType(), Edge::IGNORE_DUP);
+			newEdge = Edge::createEdge(newNearNode, newFarNode, (*iter)->getType(), Edge::IGNORE_DUP);
 		}
 	}
 }
