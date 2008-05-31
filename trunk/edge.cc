@@ -9,6 +9,12 @@ Edge::Edge() {
 }
 
 Edge *Edge::createEdge(Node *fromNode, Node *toNode, Entity::EntityType type, CreateFlag flag) {
+	if (fromNode->getParentGraph() != toNode->getParentGraph()) {
+		cerr << "\n\tcreateEdge() failed: cannot create edges across graphs (" 
+			 << fromNode->getParentGraph() << " vs. " << toNode->getParentGraph() << ")"
+			 << endl;
+		return NULL;
+	}
 	Edge *e = new Edge();
 	if (flag == IGNORE_DUP) {
 		set<Edge*> edges = fromNode->getOutEdges();

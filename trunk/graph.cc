@@ -62,6 +62,7 @@ Node* Graph::addNode(Node *node, AddFlag flag) {
 		}
 		/* ignore_dup means we insert anyway */
 	}
+	node->setParentGraph(this);
 	index.insert(pair<string, Node*>(node->getId(), node));
 	return node;
 }

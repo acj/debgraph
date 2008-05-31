@@ -4,6 +4,7 @@
 
 Node::Node() {
 	id = "";
+	parentGraph = 0;
 }
 
 Node::Node(Node &node) {
@@ -11,11 +12,13 @@ Node::Node(Node &node) {
 	dfs = node.dfs;
 	low = node.low;
 	mark = node.mark;
+	parentGraph = node.getParentGraph();
 }
 
 Node::Node(const string &nodeId) {
 	mark = 0;
 	id = nodeId;
+	parentGraph = 0;
 }
 
 Node::~Node() {
@@ -42,6 +45,14 @@ void Node::setId(string &nid) {
 const string& Node::getId() {
 	return id;
 }	
+
+Graph* Node::getParentGraph() {
+	return parentGraph;
+}
+
+void Node::setParentGraph(Graph* g) {
+	parentGraph = g;
+}
 		
 set<Edge*>& Node::getInEdges() {
 	return inEdges;
