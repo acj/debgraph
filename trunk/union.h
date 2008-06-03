@@ -10,10 +10,11 @@ class Union : DGOperator {
 	private:
 		Graph &l_operand;
 		Graph &r_operand;
+		Graph result;
 	protected:
 	public:
 		Union(Graph &, Graph &);
 		~Union();
-		Graph* execute();
+		Graph& execute();
 };
 #endif /* UNION_H */

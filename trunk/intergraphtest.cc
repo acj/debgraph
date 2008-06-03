@@ -28,9 +28,10 @@ bool InterGraphTest::run(Graph &g) {
 	Node *releaseNode_g2 = new Node("Release:semistable");
 	releaseNode_g2->setType(Entity::RELEASE);
 	releaseNode_g2 = g2->addNode(releaseNode_g2, Graph::DISCARD_DUP);
+
+	cout << "\n\t[This should produce an error]";
 	e = Edge::createEdge(releaseNode_g2, componentNode,
 		Entity::CONTAINS, Edge::IGNORE_DUP);
-
 	if (e == NULL) {
 		return true;
 	}

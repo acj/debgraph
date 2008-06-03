@@ -22,15 +22,16 @@ class Graph {
 		friend class GraphIterator;
 		Graph();
 		~Graph();
-		Graph(Graph&);
-		Graph& operator=(Graph&);
+		Graph(const Graph &);
+		Graph& operator=(const Graph &);
+		void clone(const Graph &);
 		Node* addNode(Node *node, AddFlag flag = FAIL_DUP);
-		Node* findNode(const string &id);
-		bool hasNode(const string &id);
+		Node* findNode(const string &id) const;
+		bool hasNode(const string &id) const;
 		GraphIndexT &getIndex();
-		GraphIterator &begin();
-		GraphIterator &end();
-		int size();
+		GraphIterator &begin() const;
+		GraphIterator &end() const;
+		int size() const;
 		string toGraphviz();
 };
 

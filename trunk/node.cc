@@ -31,10 +31,12 @@ Node::~Node() {
 }
 
 Node& Node::operator=(Node &n) {
-	id = n.id;
-	dfs = n.dfs;
-	low = n.low;
-	mark = n.mark;
+	if (this != &n) {
+		id = n.id;
+		dfs = n.dfs;
+		low = n.low;
+		mark = n.mark;
+	}
 	return *this;
 }
 

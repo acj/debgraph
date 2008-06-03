@@ -1,34 +1,12 @@
+#include <assert.h>
 #include <iostream>
 #include "graph.h"
 
 Graph::Graph() {
 }
 
-Graph::Graph(Graph &g) {
-	// First, copy the nodes
-	for (GraphIndexIteratorT iter = g.index.begin(); iter != g.index.end(); ++iter) {
-		index.insert(pair<string,Node*>(iter->first, new Node(*(iter->second))));
-	}
-	// Fix up the (outbound) edges
-	string oldNearNodeId;
-	Node *oldNearNode, *oldFarNode, *newNearNode, *newFarNode;
-	Edge *newEdge;
-	pair<string,Node*> old_node_entry;
-	for (GraphIndexIteratorT iter = g.index.begin(); 
-			iter != g.index.end(); 
-			++iter) {
-		old_node_entry = *iter;
-		oldNearNodeId = old_node_entry.first;
-		oldNearNode = old_node_entry.second;
-		newNearNode = index.find(oldNearNodeId)->second;
-		for (set<Edge*>::iterator iter = oldNearNode->getOutEdges().begin();
-				iter != oldNearNode->getOutEdges().end();
-				++iter) {
-			oldFarNode = (Node *)(*iter)->getToNode();
-			newFarNode = index.find(oldFarNode->getId())->second;
-			newEdge = Edge::createEdge(newNearNode, newFarNode, (*iter)->getType(), Edge::IGNORE_DUP);
-		}
-	}
+Graph::Graph(const Graph &g) {
+	clone(g);
 }
 
 Graph::~Graph() {
@@ -42,12 +20,40 @@ Graph::~Graph() {
 	}
 }
 
-Graph& Graph::operator=(Graph &g) {
-	cout << endl << "!!! Graph operator=() called: " << g.size() << endl;
-	for (GraphIndexIteratorT iter = g.index.begin(); iter != g.index.end(); ++iter) {
-		index.insert(pair<string,Node*>(iter->first, new Node(*(iter->second))));
+Graph& Graph::operator=(const Graph &g) {
+	if (this != &g) {
+		clone(g);
 	}
 	return *this;
+}
+
+void Graph::clone(const Graph &g) {
+	// First, copy the nodes
+	for (GraphIterator iter = g.begin(); iter != g.end(); ++iter) {
+		addNode(new Node(**iter), FAIL_DUP); 
+	}
+	// Fix up the (outbound) edges
+	string oldNearNodeId;
+	Node *oldNearNode, *oldFarNode, *newNearNode, *newFarNode;
+	Edge *newEdge;
+	for (GraphIterator iter = g.begin(); 
+			iter != g.end(); 
+			++iter) {
+		oldNearNode = *iter;
+		oldNearNodeId = oldNearNode->getId();
+		newNearNode = findNode(oldNearNodeId);
+		if (newNearNode == NULL) {
+			throw("Matching new node is missing");
+		}
+		for (set<Edge*>::iterator iter = oldNearNode->getOutEdges().begin();
+				iter != oldNearNode->getOutEdges().end();
+				++iter) {
+			oldFarNode = (Node *)(*iter)->getToNode();
+			newFarNode = index.find(oldFarNode->getId())->second;
+			assert(newNearNode != NULL && newFarNode != NULL);
+			newEdge = Edge::createEdge(newNearNode, newFarNode, (*iter)->getType(), Edge::IGNORE_DUP);
+		}
+	}
 }
 
 Node* Graph::addNode(Node *node, AddFlag flag) {
@@ -67,20 +73,20 @@ Node* Graph::addNode(Node *node, AddFlag flag) {
 	return node;
 }
 
-Node* Graph::findNode(const string &id) {
-	GraphIndexT::iterator i = index.find(id);
+Node* Graph::findNode(const string &id) const {
+	GraphIndexConstIteratorT i = index.find(id);
 	if (i != index.end()) {
 		return i->second;
 	}
 	return NULL;
 }
 
-bool Graph::hasNode(const string &id) {
-	GraphIndexT::iterator i = index.find(id);
+bool Graph::hasNode(const string &id) const {
+	GraphIndexConstIteratorT i = index.find(id);
 	return (i != index.end());
 }
 
-int Graph::size() {
+int Graph::size() const {
 	return index.size();
 }
 
@@ -89,15 +95,15 @@ GraphIndexT& Graph::getIndex() {
 }
 
 /* Iterator-related members */
-GraphIterator &Graph::begin() {
-	GraphIndexIteratorT index_iter = index.begin();
+GraphIterator &Graph::begin() const {
+	GraphIndexConstIteratorT index_iter = index.begin();
 	GraphIterator *iter = new GraphIterator();
 	iter->setIndexIterator(index_iter);
 	return *iter;
 }
 
-GraphIterator &Graph::end() {
-	GraphIndexIteratorT index_iter = index.end();
+GraphIterator &Graph::end() const {
+	GraphIndexConstIteratorT index_iter = index.end();
 	GraphIterator *iter = new GraphIterator();
 	iter->setIndexIterator(index_iter);
 	return *iter;

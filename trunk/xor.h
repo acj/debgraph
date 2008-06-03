@@ -14,6 +14,6 @@ class XOR : DGOperator {
 	public:
 		XOR(Graph &, Graph &);
 		~XOR();
-		Graph* execute();
+		Graph& execute();
 };
 #endif /* XOR_H */

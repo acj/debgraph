@@ -6,20 +6,19 @@
 #include "intersectiontest.h"
 
 bool IntersectionTest::run(Graph &g) {
-	Graph *g1 = new Graph();
-	Graph *g2 = new Graph();
+	Graph g1, g2;
 	Edge *e;
 
 	// g1
 	Node *releaseNode = new Node("Release:semistable");
 	releaseNode->setType(Entity::RELEASE);
-	releaseNode = g1->addNode(releaseNode, Graph::FAIL_DUP);
+	releaseNode = g1.addNode(releaseNode, Graph::FAIL_DUP);
 	Node *componentNameNode = new Node("ComponentName:main");
 	componentNameNode->setType(Entity::COMPONENTNAME);
-	componentNameNode = g1->addNode(componentNameNode, Graph::FAIL_DUP);
+	componentNameNode = g1.addNode(componentNameNode, Graph::FAIL_DUP);
 	Node *componentNode = new Node("Component:semistable:main");
 	componentNode->setType(Entity::COMPONENTNAME);
-	componentNode = g1->addNode(componentNode, Graph::FAIL_DUP);
+	componentNode = g1.addNode(componentNode, Graph::FAIL_DUP);
 	// g1 edges
 	e = Edge::createEdge(releaseNode, componentNode, 
 		Entity::CONTAINS, Edge::IGNORE_DUP);
@@ -28,31 +27,33 @@ bool IntersectionTest::run(Graph &g) {
 	// g2
 	Node *releaseNode_g2 = new Node("Release:semistable");
 	releaseNode_g2->setType(Entity::RELEASE);
-	releaseNode_g2 = g2->addNode(releaseNode, Graph::FAIL_DUP);
+	releaseNode_g2 = g2.addNode(releaseNode_g2, Graph::FAIL_DUP);
 
-	Intersection *isect = new Intersection(*g1, *g2);
-	Graph *result = isect->execute();
+	Intersection *isect = new Intersection(g1, g2);
+	Graph &result = isect->execute();
 
 	// Do a timing test on the full graph
+	/*
 	time_t start,end;
 	double diff = 0;
 	char strdiff[10];
 	time(&start);
-	isect = new Intersection(g, g);
-	Graph *result_full = isect->execute();
+	Intersection *isect_full = new Intersection(g, g);
+	Graph &result_full = isect_full->execute();
 	time(&end);
 	diff = difftime(end, start);
 	sprintf(strdiff, "%.0f", diff);
 	cout << endl << "\tCompleted in " << strdiff << " seconds"
 		 << endl;
 
-	if (result->size() != 1) {
+	if (result.findNode("Release:semistable") == NULL) {
 		return false;
 	}
-	if (result->findNode("Release:semistable") == NULL) {
+	if (g.size() != result_full.size()) {
 		return false;
 	}
-	if (g.size() != result_full->size()) {
+	*/
+	if (result.size() != 1) {
 		return false;
 	}
 	return true;

@@ -10,10 +10,11 @@ class Difference : DGOperator {
 	private:
 		Graph &l_operand;
 		Graph &r_operand;
+		Graph result;
 	protected:
 	public:
 		Difference(Graph &, Graph &);
 		~Difference();
-		Graph* execute();
+		Graph& execute();
 };
 #endif /* DIFFERENCE_H */

@@ -3,16 +3,12 @@
 GraphIterator::GraphIterator() {
 }
 
-//GraphIterator& GraphIterator::operator=(Graph* graph_oper) {
-	// XXX
-//}
-
 GraphIterator& GraphIterator::operator++() {
 	graph_iter++;		
 	return *this;
 }
 
-bool GraphIterator::operator==(const GraphIterator &iter) {
+bool GraphIterator::operator==(const GraphIterator &iter) const {
 	if (graph_iter == iter.graph_iter) {
 		return true;
 	} else {
@@ -20,7 +16,7 @@ bool GraphIterator::operator==(const GraphIterator &iter) {
 	}
 }
 
-bool GraphIterator::operator!=(const GraphIterator &iter) {
+bool GraphIterator::operator!=(const GraphIterator &iter) const {
 	if (graph_iter != iter.graph_iter) {
 		return true;
 	} else {
@@ -28,6 +24,6 @@ bool GraphIterator::operator!=(const GraphIterator &iter) {
 	}
 }
 
-Node* GraphIterator::operator*() {
+Node* GraphIterator::operator*() const {
 	return (*graph_iter).second;
 }
