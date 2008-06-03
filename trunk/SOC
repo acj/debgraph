@@ -40,8 +40,8 @@ change during the work.
 		+ Count nodes in a graph
 		- Compute intersection of two sets of nodes 
 		- Compute union of two sets of nodes
-		+ Compute xor of two sets of nodes
-		+ Compute difference of two sets of nodes
+		- Compute xor of two sets of nodes
+		- Compute difference of two sets of nodes
 		+ Find/filter nodes based on property values (already implemented?)
 		(Useful)
 		+ State machine to track traversal info (cf. next two items)
