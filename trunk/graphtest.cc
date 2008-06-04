@@ -5,10 +5,27 @@
 #include "graphtest.h"
 
 bool GraphTest::run(Graph &g) {
+	Graph addDeleteGraph;
+	Node *releaseNode = new Node("Release:semistable");
+	releaseNode->setType(Entity::RELEASE);
+	releaseNode = addDeleteGraph.addNode(releaseNode, Graph::DISCARD_DUP);
+
+	if ( !(addDeleteGraph.size() == 1
+		&& addDeleteGraph.hasNode("Release:semistable")) ) {
+		cout << "Add/delete Node failed" << endl;
+		return false;
+	}
+	addDeleteGraph.deleteNode("Release:semistable");
+	if ( !(addDeleteGraph.size() == 0
+		&& !addDeleteGraph.hasNode("Release:semistable")) ) {
+		return false;
+	}
+
+	// Test the copy constructor
 	Graph g1;
 	Edge *e;
 
-	Node *releaseNode = new Node("Release:semistable");
+	releaseNode = new Node("Release:semistable");
 	releaseNode->setType(Entity::RELEASE);
 	releaseNode = g1.addNode(releaseNode, Graph::DISCARD_DUP);
 	Node *componentNameNode = new Node("ComponentName:main");
@@ -26,7 +43,6 @@ bool GraphTest::run(Graph &g) {
 	dotfile << g1.toGraphviz();
 	dotfile.close();
 
-	// Test the copy constructor
 	Graph g1_copy(g1);
 	if ( !(g1_copy.hasNode("Release:semistable")
 		&& g1_copy.findNode("Release:semistable") != NULL
@@ -38,7 +54,7 @@ bool GraphTest::run(Graph &g) {
 		cout << "\n\tFailed to copy Graph object." << endl;
 		return false;
 	}
-	// Verify that the copied nodes do not
+	// Verify that the copied nodes are not pointers to an old node
 	Node *n;
 	for (GraphIterator iter = g1.begin(); iter != g1.end(); ++iter) {
 		n = g1_copy.findNode((*iter)->getId());
@@ -50,6 +66,5 @@ bool GraphTest::run(Graph &g) {
 	dotfile.open("out/graphtest-copy.dot");
 	dotfile << g1_copy.toGraphviz();
 	dotfile.close();
-	
 	return true;
 }

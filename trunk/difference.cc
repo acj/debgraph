@@ -13,7 +13,7 @@ Graph& Difference::execute() {
 	for (GraphIterator i = r_operand.begin(); i != r_operand.end(); ++i) {
 		searchNodeId = (*i)->getId();
 		if (result.hasNode(searchNodeId)) {
-			result.getIndex().erase(searchNodeId);
+			result.deleteNode(searchNodeId);
 		}
 	}
 	return result;

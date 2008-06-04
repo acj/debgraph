@@ -23,8 +23,6 @@ bool Structure::run(Graph &g) {
 	set<string> archs;
 	set<string> comps;
 	set<string> releases;
-	
-	multimap<string, Node*> nIndex = g.getIndex();
 	set<string> sDeps;
 	// insert standard edges that replace some others 
 	sDeps.insert("BINARY -> BINARYNAME [ label = \"(pre)dep, recommends, suggests\" ]");

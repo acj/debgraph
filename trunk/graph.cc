@@ -73,6 +73,15 @@ Node* Graph::addNode(Node *node, AddFlag flag) {
 	return node;
 }
 
+void Graph::deleteNode(const string &id) {
+	GraphIndexIteratorT i = index.find(id);
+	if (i != index.end()) {
+		Node *n = (*i).second;
+		delete n;
+		index.erase(id);
+	}
+}
+
 Node* Graph::findNode(const string &id) const {
 	GraphIndexConstIteratorT i = index.find(id);
 	if (i != index.end()) {

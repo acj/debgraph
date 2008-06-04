@@ -18,6 +18,7 @@ class Graph {
 				DISCARD_DUP};
 	protected:
 		GraphIndexT index;
+		GraphIndexT& getIndex();
 	public:
 		friend class GraphIterator;
 		Graph();
@@ -26,11 +27,11 @@ class Graph {
 		Graph& operator=(const Graph &);
 		void clone(const Graph &);
 		Node* addNode(Node *node, AddFlag flag = FAIL_DUP);
-		Node* findNode(const string &id) const;
-		bool hasNode(const string &id) const;
-		GraphIndexT &getIndex();
-		GraphIterator &begin() const;
-		GraphIterator &end() const;
+		void deleteNode(const string &);
+		Node* findNode(const string &) const;
+		bool hasNode(const string &) const;
+		GraphIterator& begin() const;
+		GraphIterator& end() const;
 		int size() const;
 		string toGraphviz();
 };
