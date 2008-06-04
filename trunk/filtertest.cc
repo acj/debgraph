@@ -6,9 +6,7 @@
 #include "filtertest.h"
 
 bool FilterTest::run(Graph &g) {
-	// Intentionally create an edge between two separate graphs.
-	// Creating such an edge should fail with a useful error message.
-	Graph g1, g2;
+	Graph g1;
 	Edge *e;
 	// g1
 	Node *releaseNode = new Node("Release:semistable");
@@ -29,18 +27,42 @@ bool FilterTest::run(Graph &g) {
 		Entity::HAS_INSTANCE, Edge::IGNORE_DUP);
 
 	FilterProperties fp;
-	FilterPair fpair = { string("id"), string("Component:semistable:main") };
-	fp.push_back(fpair);
+	FilterPair fpair_id = { string("id"), string("Component:semistable:main") };
+	fp.push_back(fpair_id);
 	Filter f(g1, fp, FILTER_AND);
 	Graph result = f.execute();
 
-	if (result.size() == 1
+	if ( !(result.size() == 1
 		&& result.hasNode("Component:semistable:main")
 		&& !result.hasNode("ComponentName:main")
-		&& !result.hasNode("Release:semistable")) {
-		return true;
-	}
-	else {
+		&& !result.hasNode("Release:semistable")) ) {
 		return false;
 	}
+
+	// Run a test on the full Debian graph
+	FilterProperties fProperties;
+	FilterPair fPairSection = { string("Section"), string("games") };
+	FilterPair fPairArch = { string("Architecture"), string("arm") };
+	fProperties.push_back(fPairSection);
+	fProperties.push_back(fPairArch);
+	Filter fDeb(g, fProperties, FILTER_AND);
+	Graph resultDeb = fDeb.execute();
+	cout << "\tNodes matching Section:games AND Architecture:arm "
+		 << resultDeb.size() << endl;
+
+	// Refine the search again	
+	FilterProperties fPropertiesPriority;
+	FilterPair fPairPriority = { string("Priority"), string("extra") };
+	Filter fDebPri(resultDeb, fPropertiesPriority, FILTER_AND);
+	fDebPri.addCriterion(fPairPriority);
+	Graph resultPriority = fDebPri.execute();
+	cout << "\tNodes matching Section:games AND Architecture:arm AND Priority:extra "
+		 << resultPriority.size() << endl;
+
+	ofstream dotfile;
+	dotfile.open("out/filtertest.dot");
+	dotfile << resultPriority.toGraphviz();
+	dotfile.close();
+		
+	return true;
 }

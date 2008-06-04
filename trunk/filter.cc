@@ -1,11 +1,21 @@
+#include <iostream>
 #include "filter.h"
 
-Filter::Filter(Graph &oper1, FilterProperties filterProps, FilterType)
+Filter::Filter(Graph &oper1, FilterProperties filterProps, FilterType ft)
 	: l_operand(oper1) {
 	properties = filterProps;
+	filterType = ft;
 }
 
 Filter::~Filter() {
+}
+
+void Filter::addCriterion(FilterPair fPair) {
+	properties.push_back(fPair);
+}
+
+void Filter::setFilterProperties(FilterProperties filterProperties) {
+	properties = filterProperties;
 }
 
 Graph& Filter::execute() {

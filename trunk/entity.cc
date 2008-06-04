@@ -62,6 +62,7 @@ Entity::EntityType Entity::getType() {
 
 void Entity::setType(Entity::EntityType eType) {
 	type = eType;
+	replaceProperty("Type", getTypeString());
 }
 		
 string Entity::getTypeString() {

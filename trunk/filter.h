@@ -27,6 +27,8 @@ class Filter : DGOperator {
 	public:
 		Filter(Graph &, FilterProperties, FilterType=FILTER_AND);
 		~Filter();
+		void addCriterion(FilterPair);
+		void setFilterProperties(FilterProperties);
 		Graph& execute();
 };
 #endif /* FILTER_H */

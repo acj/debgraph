@@ -12,12 +12,13 @@ Node::Node(Node &node) {
 	dfs = node.dfs;
 	low = node.low;
 	mark = node.mark;
-	parentGraph = node.getParentGraph();
+	properties = node.properties;
+	parentGraph = node.parentGraph;
 }
 
 Node::Node(const string &nodeId) {
-	mark = 0;
 	id = nodeId;
+	mark = 0;
 	parentGraph = 0;
 }
 
@@ -36,6 +37,8 @@ Node& Node::operator=(Node &n) {
 		dfs = n.dfs;
 		low = n.low;
 		mark = n.mark;
+		properties = n.properties;
+		parentGraph = n.parentGraph;
 	}
 	return *this;
 }
