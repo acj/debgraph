@@ -31,8 +31,8 @@ bool FilterTest::run(Graph &g) {
 	FilterProperties fp;
 	FilterPair fpair = { string("id"), string("Component:semistable:main") };
 	fp.push_back(fpair);
-	Filter f = new Filter(g1, fp, FILTER_AND);
-	Graph result = f->execute();
+	Filter f(g1, fp, FILTER_AND);
+	Graph result = f.execute();
 
 	if (result.size() == 1
 		&& result.hasNode("Component:semistable:main")

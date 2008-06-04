@@ -29,8 +29,8 @@ bool IntersectionTest::run(Graph &g) {
 	releaseNode_g2->setType(Entity::RELEASE);
 	releaseNode_g2 = g2.addNode(releaseNode_g2, Graph::FAIL_DUP);
 
-	Intersection *isect = new Intersection(g1, g2);
-	Graph &result = isect->execute();
+	Intersection isect = Intersection(g1, g2);
+	Graph &result = isect.execute();
 
 	// Do a timing test on the full graph
 	/*

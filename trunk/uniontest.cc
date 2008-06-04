@@ -27,8 +27,8 @@ bool UnionTest::run(Graph &g) {
 		Entity::CONTAINS, Edge::IGNORE_DUP);
 	e = Edge::createEdge(componentNameNode, componentNode,
 		Entity::HAS_INSTANCE, Edge::IGNORE_DUP);
-	Union *u = new Union(g1, g2);
-	Graph result = u->execute();	
+	Union u = Union(g1, g2);
+	Graph result = u.execute();	
 
 	// Check sizes
 	if (result.size() != 3) {

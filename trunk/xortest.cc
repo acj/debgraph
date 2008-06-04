@@ -27,8 +27,8 @@ bool XORTest::run(Graph &g) {
 		Entity::CONTAINS, Edge::IGNORE_DUP);
 	e = Edge::createEdge(componentNameNode, componentNode,
 		Entity::HAS_INSTANCE, Edge::IGNORE_DUP);
-	XOR *x = new XOR(g1, g2);
-	Graph result = x->execute();	
+	XOR x = XOR(g1, g2);
+	Graph result = x.execute();	
 
 	// Check sizes
 	if (result.size() != 2) {

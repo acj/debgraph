@@ -29,8 +29,8 @@ bool DifferenceTest::run(Graph &g) {
 	releaseNode_g2->setType(Entity::RELEASE);
 	releaseNode_g2 = g2.addNode(releaseNode_g2, Graph::DISCARD_DUP);
 
-	Difference *d = new Difference(g1, g2);
-	Graph result = d->execute();
+	Difference d = Difference(g1, g2);
+	Graph result = d.execute();
 
 	if (result.size() == 2
 		&& result.hasNode("ComponentName:main")
