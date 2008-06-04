@@ -93,9 +93,10 @@ int Node::getMark() {
 
 string Node::toGraphviz() {
 	string output("\tnode");
-	char node_id_salt[10];
+	char node_id_salt[10]; // XXX Make safe for 64-bit architectures
 	sprintf(node_id_salt, "%u", (unsigned int)this);
-	output += string(node_id_salt) + " [ label = \"" + id + "\" ];\n";
+	output += string(node_id_salt) 
+		+ " [ label = \"" + getProperty("Package") + "\" ];\n";
 	for (set<Edge*>::iterator i = outEdges.begin(); i != outEdges.end(); ++i) {
 		output += (*i)->toGraphviz();	
 	}

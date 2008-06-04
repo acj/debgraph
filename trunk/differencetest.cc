@@ -6,8 +6,6 @@
 #include "differencetest.h"
 
 bool DifferenceTest::run(Graph &g) {
-	// Intentionally create an edge between two separate graphs.
-	// Creating such an edge should fail with a useful error message.
 	Graph g1, g2;
 	Edge *e;
 	// g1
