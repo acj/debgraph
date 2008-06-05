@@ -10,8 +10,8 @@ Filter::Filter(Graph &oper1, FilterProperties filterProps, FilterType ft)
 Filter::~Filter() {
 }
 
-void Filter::addCriterion(FilterPair fPair) {
-	properties.push_back(fPair);
+void Filter::addCriterion(FilterRule fRule) {
+	properties.push_back(fRule);
 }
 
 void Filter::setFilterProperties(FilterProperties filterProperties) {
@@ -27,11 +27,52 @@ Graph& Filter::execute() {
 		if (filterType == FILTER_AND) {
 			node_matches = true;	
 			for (iter = properties.begin(); iter != properties.end(); ++iter) {
-				if ((*graph_iter)->getProperty(iter->key) == iter->value) {
-					continue;
+				switch (iter->verb) {
+					case CONTAINS:
+					{
+						const string &s = (*graph_iter)->getProperty(iter->subject);
+						if (s.find(iter->object) == string::npos) {
+							node_matches = false;
+						}
+						else {
+							continue;
+						}
+						break;
+					}
+					case NCONTAINS:
+					{
+						const string &s = (*graph_iter)->getProperty(iter->subject);
+						if (s.find(iter->object) == string::npos) {
+							continue;
+						}
+						else {
+							node_matches = false;
+						}
+						break;
+					}
+					case EQUALS:
+					{
+						if ((*graph_iter)->getProperty(iter->subject) == iter->object) {
+							continue;
+						}
+						else {
+							node_matches = false;
+						}
+						break;
+					}
+					case NEQUALS:
+					{
+						if ((*graph_iter)->getProperty(iter->subject) != iter->object) {
+							continue;
+						}
+						else {
+							node_matches = false;
+						}
+						break;
+					}
 				}
-				else {
-					node_matches = false;
+				// Do not continue the loop longer than necessary
+				if (!node_matches) {
 					break;
 				}
 			}
@@ -40,9 +81,52 @@ Graph& Filter::execute() {
 			// FILTER_OR
 			node_matches = false;
 			for (iter = properties.begin(); iter != properties.end(); ++iter) {
-				if ((*graph_iter)->getProperty(iter->key) == iter->value) {
-					// Match!
-					node_matches = true;
+				switch (iter->verb) {
+					case CONTAINS:
+					{
+						const string &s = (*graph_iter)->getProperty(iter->subject);
+						if (s.find(iter->object) == string::npos) {
+							continue;
+						}
+						else {
+							node_matches = true;
+						}
+						break;
+					}
+					case NCONTAINS:
+					{
+						const string &s = (*graph_iter)->getProperty(iter->subject);
+						if (s.find(iter->object) == string::npos) {
+							continue;
+						}
+						else {
+							node_matches = true;
+						}
+						break;
+					}
+					case EQUALS:
+					{
+						if ((*graph_iter)->getProperty(iter->subject) == iter->object) {
+							// Match!
+							node_matches = true;
+							break;
+						}
+						else {
+							continue;
+						}
+						break;
+					}
+					case NEQUALS:
+					{
+						if ((*graph_iter)->getProperty(iter->subject) != iter->object) {
+							// Match!
+							node_matches = true;
+						}
+						break;
+					}
+				}
+				// Don't continue the loop longer than necessary
+				if (node_matches) {
 					break;
 				}
 			}

@@ -7,16 +7,23 @@
 
 using namespace std;
 
-struct FilterPair {
-	string key;
-	string value;
-};
-typedef vector< struct FilterPair > FilterProperties;
-typedef FilterProperties::const_iterator FilterPropertiesIterator;
 enum FilterType {
 	FILTER_AND,
 	FILTER_OR
 };
+enum FilterVerb {
+	CONTAINS,
+	NCONTAINS,
+	EQUALS,
+	NEQUALS
+};
+struct FilterRule {
+	string subject;
+	FilterVerb verb;
+	string object;
+};
+typedef vector< struct FilterRule > FilterProperties;
+typedef FilterProperties::const_iterator FilterPropertiesIterator;
 
 class Filter : DGOperator {
 	private:
@@ -27,7 +34,7 @@ class Filter : DGOperator {
 	public:
 		Filter(Graph &, FilterProperties, FilterType=FILTER_AND);
 		~Filter();
-		void addCriterion(FilterPair);
+		void addCriterion(FilterRule);
 		void setFilterProperties(FilterProperties);
 		Graph& execute();
 };
