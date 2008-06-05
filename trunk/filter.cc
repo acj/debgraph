@@ -1,11 +1,7 @@
 #include <iostream>
 #include "filter.h"
 
-Filter::Filter(Graph &oper1, FilterProperties filterProps, FilterType ft)
-	: l_operand(oper1) {
-	properties = filterProps;
-	filterType = ft;
-}
+// NB: Constructor defined in header file.
 
 Filter::~Filter() {
 }
@@ -21,8 +17,8 @@ void Filter::setFilterProperties(FilterProperties filterProperties) {
 Graph& Filter::execute() {
 	FilterPropertiesIterator iter;
 	bool node_matches = true;
-	for (GraphIterator graph_iter = l_operand.begin(); 
-			graph_iter != l_operand.end(); ++graph_iter) {
+	for (GraphIterator graph_iter = operand.begin(); 
+			graph_iter != operand.end(); ++graph_iter) {
 		// Check each property
 		if (filterType == FILTER_AND) {
 			node_matches = true;	
@@ -135,5 +131,6 @@ Graph& Filter::execute() {
 			result.addNode(new Node(**graph_iter), Graph::FAIL_DUP);
 		}
 	}
+	addConsistentEdges();
 	return result;
 }

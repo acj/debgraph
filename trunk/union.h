@@ -1,19 +1,15 @@
 #ifndef UNION_H
 #define UNION_H
 
-#include "dgoperator.h"
+#include "dgbinaryoperator.h"
 #include "graph.h"
 
 using namespace std;
 
-class Union : DGOperator {
+class Union : DGBinaryOperator {
 	private:
-		Graph &l_operand;
-		Graph &r_operand;
-		Graph result;
-	protected:
 	public:
-		Union(Graph &, Graph &);
+		Union(Graph &g1, Graph &g2) : DGBinaryOperator(g1, g2) { };
 		~Union();
 		Graph& execute();
 };

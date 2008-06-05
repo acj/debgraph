@@ -1,9 +1,7 @@
 #include "intersection.h"
 #include <iostream>
 
-Intersection::Intersection(Graph &l_operand, Graph &r_operand) 
-	: l_operand(l_operand), r_operand(r_operand)  {
-}
+// NB: Constructor defined in header file.
 
 Intersection::~Intersection() {
 }
@@ -28,5 +26,6 @@ Graph& Intersection::execute() {
 			result.addNode(new Node(**i), Graph::FAIL_DUP);
 		}
 	}
+	addConsistentEdges();
 	return result;
 }

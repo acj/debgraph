@@ -1,8 +1,6 @@
 #include "difference.h"
 
-Difference::Difference(Graph &oper1, Graph &oper2)
-	: l_operand(oper1), r_operand(oper2) {
-}
+// NB: Constructor defined in header file.
 
 Difference::~Difference() {
 }
@@ -16,5 +14,6 @@ Graph& Difference::execute() {
 			result.deleteNode(searchNodeId);
 		}
 	}
+	addConsistentEdges();
 	return result;
 }

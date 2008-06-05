@@ -89,5 +89,17 @@ bool FilterTest::run(Graph &g) {
 		return false;
 	}
 
+	FilterProperties fPropertiesDepends;
+	Filter fDependencies(g, fPropertiesDepends, FILTER_OR);
+	FilterRule fRuleDepends1 = { string("Package"), EQUALS, string("3dchess") };
+	FilterRule fRuleDepends2 = { string("Package"), EQUALS, string("libc6") };
+	fDependencies.addCriterion(fRuleDepends1);
+	fDependencies.addCriterion(fRuleDepends2);
+	Graph dependsResult = fDependencies.execute();
+
+	ofstream dotfile("out/filtertest-edges.dot");
+	dotfile << dependsResult.toGraphviz();
+	dotfile.close();
+
 	return true;
 }

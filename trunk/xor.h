@@ -1,18 +1,15 @@
 #ifndef XOR_H
 #define XOR_H
 
-#include "dgoperator.h"
+#include "dgbinaryoperator.h"
 #include "graph.h"
 
 using namespace std;
 
-class XOR : DGOperator {
+class XOR : DGBinaryOperator {
 	private:
-		Graph &l_operand;
-		Graph &r_operand;
-	protected:
 	public:
-		XOR(Graph &, Graph &);
+		XOR(Graph &g1, Graph &g2) : DGBinaryOperator(g1, g2) { };
 		~XOR();
 		Graph& execute();
 };

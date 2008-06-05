@@ -25,7 +25,7 @@ class Node : public Entity {
 		Node(const string &nodeId);
 		~Node();
 		Node& operator=(Node&);
-		const string& getId();
+		const string& getId() const;
 		Graph* getParentGraph();
 		void setParentGraph(Graph* g);
 		void setId(string &nid);

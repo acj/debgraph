@@ -2,7 +2,7 @@
 #define FILTER_H
 
 #include <vector>
-#include "dgoperator.h"
+#include "dgunaryoperator.h"
 #include "graph.h"
 
 using namespace std;
@@ -25,14 +25,17 @@ struct FilterRule {
 typedef vector< struct FilterRule > FilterProperties;
 typedef FilterProperties::const_iterator FilterPropertiesIterator;
 
-class Filter : DGOperator {
+class Filter : DGUnaryOperator {
 	private:
-		Graph &l_operand;
-		Graph result;
 		FilterProperties properties;
 		FilterType filterType;
 	public:
-		Filter(Graph &, FilterProperties, FilterType=FILTER_AND);
+		Filter(Graph &g, FilterProperties fp, FilterType ft=FILTER_AND) 
+			: DGUnaryOperator(g) 
+		{
+			properties = fp;
+			filterType = ft;
+		};
 		~Filter();
 		void addCriterion(FilterRule);
 		void setFilterProperties(FilterProperties);

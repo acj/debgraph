@@ -47,7 +47,7 @@ void Node::setId(string &nid) {
 	id = nid;
 }
 
-const string& Node::getId() {
+const string& Node::getId() const {
 	return id;
 }	
 
@@ -96,7 +96,10 @@ string Node::toGraphviz() {
 	char node_id_salt[10]; // XXX Make safe for 64-bit architectures
 	sprintf(node_id_salt, "%u", (unsigned int)this);
 	output += string(node_id_salt) 
-		+ " [ label = \"" + getProperty("Package") + "\" ];\n";
+		+ " [ label = \"" + getProperty("Package") 
+		+ "\\n" + getProperty("Version") 
+		+ "\\n" + getProperty("Architecture") 
+		+ "\" ];\n";
 	for (set<Edge*>::iterator i = outEdges.begin(); i != outEdges.end(); ++i) {
 		output += (*i)->toGraphviz();	
 	}

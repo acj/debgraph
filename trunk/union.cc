@@ -1,8 +1,6 @@
 #include "union.h"
 
-Union::Union(Graph &oper1, Graph &oper2) 
-	: l_operand(oper1), r_operand(oper2)  {
-}
+// NB: Constructor defined in header file.
 
 Union::~Union() {
 }
@@ -21,5 +19,6 @@ Graph& Union::execute() {
 	for (GraphIterator i = smaller->begin(); i != smaller->end(); ++i) {
 		result.addNode(new Node(**i), Graph::DISCARD_DUP);
 	}
+	addConsistentEdges();
 	return result;
 }

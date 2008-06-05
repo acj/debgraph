@@ -1,19 +1,15 @@
 #ifndef DIFFERENCE_H
 #define DIFFERENCE_H
 
-#include "dgoperator.h"
+#include "dgbinaryoperator.h"
 #include "graph.h"
 
 using namespace std;
 
-class Difference : DGOperator {
+class Difference : DGBinaryOperator {
 	private:
-		Graph &l_operand;
-		Graph &r_operand;
-		Graph result;
-	protected:
 	public:
-		Difference(Graph &, Graph &);
+		Difference(Graph &l_operand, Graph &r_operand) : DGBinaryOperator(l_operand, r_operand) { };
 		~Difference();
 		Graph& execute();
 };
