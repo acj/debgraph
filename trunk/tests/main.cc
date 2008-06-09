@@ -8,17 +8,22 @@
 #include "testkit.h"
 #include "debian.h"
 
-
 int main(int argc, char *argv[]) {
 	time_t ct = time(NULL);
 	ofstream ofile;
-	ofile.open("out/index.html");
+	ofile.open("test/out/index.html");
 
-	ofile << "<h1>Index</h1>" << endl;
-	DebianGraph g("cache");
+	ofile << "<h1>Unit Test Index</h1>" << endl;
+	DebianGraph g("../cache");
 	ofile << endl;
-	
-	TestKit::instance()->run(g);
+
+	if (TestKit::instance()->run(g) == false) {
+		cout << "At least one test failed!" << endl;
+	}
+	else {
+		cout << "All tests passed." << endl;
+	}
+
 	TestKit::instance()->createIndex(ofile);
 
 	ofile << "<br><font size=\"-1\">Problems? Robert Lemmen &lt;<a href=\"mailtourobertle@semistable.com\">robertle@semistable.com</a>&gt;</font>" << endl;

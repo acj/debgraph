@@ -37,9 +37,9 @@ bool UnionTest::run(Graph &g) {
 		return false;
 	}
 	// Check individual nodes
-	if ( !(result.findNode("Release:semistable") != NULL
-			&& result.findNode("ComponentName:main") != NULL
-			&& result.findNode("Component:semistable:main") != NULL) ) {
+	if ( !(result.hasNode("Release:semistable")
+			&& result.hasNode("ComponentName:main")
+			&& result.hasNode("Component:semistable:main")) ) {
 		cout << "\tMissing at least one expected node" << endl;
 		return false;
 	}
