@@ -1,6 +1,6 @@
 TOPDIR=../
 INCLUDES=-I../
-CXXFLAGS?=-g -Wall $(INCLUDES)
+CXXFLAGS?=-g -Wall
 LDFLAGS=
 MAKE=make
 CXX=g++

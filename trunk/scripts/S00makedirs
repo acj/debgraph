@@ -3,4 +3,5 @@
 echo "Creating directories...";
 mkdir -p cache
 mkdir -p out
-mkdir -p tests/out
+ln -n -s cache tests/cache
+ln -n -s out tests/out

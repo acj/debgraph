@@ -11,10 +11,10 @@
 int main(int argc, char *argv[]) {
 	time_t ct = time(NULL);
 	ofstream ofile;
-	ofile.open("test/out/index.html");
+	ofile.open("out/index.html");
 
 	ofile << "<h1>Unit Test Index</h1>" << endl;
-	DebianGraph g("../cache");
+	DebianGraph g("cache");
 	ofile << endl;
 
 	if (TestKit::instance()->run(g) == false) {
