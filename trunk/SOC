@@ -46,7 +46,7 @@ change during the work.
 		(Useful)
 		+ State machine to track traversal info (cf. next two items)
 		- Recursively find nodes' dependencies
-		+ Recursively find nodes' dependents (traverse edges in reverse)
+		- Recursively find nodes' dependents (traverse edges in reverse)
 		+ Merge subgraphs (or maybe merge sets of nodes into a single node 
 		  in order to simulate a virtual package?)
 		+ Invert node selection (complement)
