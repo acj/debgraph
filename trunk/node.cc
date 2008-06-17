@@ -51,7 +51,7 @@ const string& Node::getId() const {
 	return id;
 }	
 
-Graph* Node::getParentGraph() {
+Graph* Node::getParentGraph() const {
 	return parentGraph;
 }
 
@@ -67,11 +67,31 @@ set<Edge*>& Node::getOutEdges() {
 	return outEdges;
 }
 
+bool Node::hasEdgeFrom(Node *n) const {
+	for (set<Edge*>::const_iterator i = inEdges.begin(); 
+			i != inEdges.end(); ++i) {
+		if ((*i)->getFromNode() == n) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Node::hasEdgeTo(Node *n) const {
+	for (set<Edge*>::const_iterator i = outEdges.begin(); 
+			i != outEdges.end(); ++i) {
+		if ((*i)->getToNode() == n) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void Node::setDfs(int d) {
 	dfs = d;
 }
 
-int Node::getDfs() {
+int Node::getDfs() const {
 	return dfs;
 }
 
@@ -79,7 +99,7 @@ void Node::setLow(int l) {
 	low = l;
 }
 
-int Node::getLow() {
+int Node::getLow() const {
 	return low;
 }
 
@@ -87,7 +107,7 @@ void Node::setMark(int m) {
 	mark = m;
 }
 
-int Node::getMark() {
+int Node::getMark() const {
 	return mark;
 }
 
