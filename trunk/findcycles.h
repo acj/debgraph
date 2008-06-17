@@ -10,13 +10,14 @@ using namespace std;
 class FindCycles : DGUnaryOperator {
 	private:
 		vector<Graph> cycles;
-		set<string> visitedNodes;
-		vector<Node*> depVector;
+		size_t cycle_limit;
 	public:
-		FindCycles(Graph &g) : DGUnaryOperator(g) { };
+		FindCycles(Graph &g, size_t max_cycles = 0) : DGUnaryOperator(g)
+		{
+			cycle_limit = max_cycles;
+		};
 		~FindCycles();
 		Graph& execute();
 		vector<Graph>& getCycles();
-		void findCycles(Node*);
 };
 #endif /* FINDCYCLES_H */

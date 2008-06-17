@@ -50,7 +50,12 @@ change during the work.
 		+ Merge subgraphs (or maybe merge sets of nodes into a single node 
 		  in order to simulate a virtual package?)
 		+ Invert node selection (complement)
-		+ Find cycles (e.g., recursive depends/conflicts)
+		- Find cycles (e.g., recursive depends/conflicts)
+			- Handle disconnected components (islands) correctly
+			+ Need to be able to specify the type of cycle (depends,
+			  conflicts, etc.)
+			+ Return a useful result (set of Graphs?)
+		+ Find strongly connected components (Tarjan)
 		(Exotic)
 		+ TBD
 + implement them. this is a "milestone delivery", to be completed by 10

@@ -43,7 +43,7 @@ bool FindCyclesTest::run(Graph &g) {
 	cout << "\n\tFound " << fc.getCycles().size() << " cycles" << endl;
 	if (fc.getCycles().size() == 3) {
 		char cycleName[25];
-		for (unsigned int i = 1; i <= 3; ++i) {
+		for (unsigned int i = 0; i<3; ++i) {
 			sprintf(cycleName, "out/findcycles-%d.dot", i);
 			ofstream dotfile(cycleName);
 			dotfile << fc.getCycles()[i].toGraphviz();

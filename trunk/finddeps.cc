@@ -1,6 +1,5 @@
 #include <stack>
 #include "finddeps.h"
-#include <iostream> // FIXME
 
 // NB: Constructor defined in header file.
 
