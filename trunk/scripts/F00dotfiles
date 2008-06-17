@@ -1,0 +1,24 @@
+#!/bin/sh
+# Process Graphviz .dot files into graphics.  If a first argument (file
+# or directory) is given, process it instead of the "out" directory.
+TARGET=$1
+
+# Process the debgraph "out" directory by default.
+if [ -z "$TARGET" ]
+then
+	TARGET="out"	
+fi
+
+if [ -d $TARGET ]
+then
+	for DOTFILE in `ls $TARGET/*.dot`
+	do
+		GFXFILE=`echo $DOTFILE | sed -e 's/\.dot/\.png/'`
+		dot -Gepsilon=.0000001 -Gstart=6 -Goverlap=false -Gsplines=true -Gsep=3 -Tpng $DOTFILE -o $GFXFILE
+		echo -n "$GFXFILE "
+	done
+elif [ -f $TARGET ]
+then
+	GFXFILE=`echo $DOTFILE | sed -e 's/\.dot/\.png/'`
+	dot -Gepsilon=.0000001 -Gstart=6 -Goverlap=false -Gsplines=true -Gsep=3 -Tpng $TARGET -o $GFXFILE echo $TARGET
+fi

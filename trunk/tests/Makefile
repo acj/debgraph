@@ -29,5 +29,6 @@ clean:
 run: $(TARGET)
 	@echo "Running test suite..."
 	@./testsuite
+	@scripts/F00dotfiles tests/out
 
 -include .depend
