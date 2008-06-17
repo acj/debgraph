@@ -186,6 +186,7 @@ void addDependency(Node *n, Graph *g, string dep, Entity::EntityType type) {
 			string or_name("Or:");
 			or_name += salt;
 			name = new Node(or_name);
+			name->addProperty("Package", "OR");
 			name->setType(Entity::OR);
 			name = g->addNode(name, Graph::IGNORE_DUP);
 			Edge::createEdge(n, name, type);
