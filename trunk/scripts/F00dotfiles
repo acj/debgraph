@@ -22,3 +22,5 @@ then
 	GFXFILE=`echo $DOTFILE | sed -e 's/\.dot/\.png/'`
 	dot -Gepsilon=.0000001 -Gstart=6 -Goverlap=false -Gsplines=true -Gsep=3 -Tpng $TARGET -o $GFXFILE echo $TARGET
 fi
+
+echo ""
