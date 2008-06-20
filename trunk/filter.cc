@@ -131,6 +131,6 @@ Graph& Filter::execute() {
 			result.addNode(new Node(**graph_iter), Graph::FAIL_DUP);
 		}
 	}
-	addConsistentEdges();
+	copyConsistentEdges(operand, result);
 	return result;
 }

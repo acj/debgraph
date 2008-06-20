@@ -15,7 +15,7 @@ class DGUnaryOperator : public DGOperator {
 	public:
 		virtual ~DGUnaryOperator();
 		virtual Graph& execute() = 0;
-		void addConsistentEdges();
+		void copyConsistentEdges(Graph&, Graph&);
 };
 
 #endif /* DGUNARYOPERATOR_H */

@@ -26,6 +26,6 @@ Graph& Intersection::execute() {
 			result.addNode(new Node(**i), Graph::FAIL_DUP);
 		}
 	}
-	addConsistentEdges();
+	copyConsistentEdges(l_operand, r_operand, result);
 	return result;
 }

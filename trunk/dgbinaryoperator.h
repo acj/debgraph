@@ -17,7 +17,7 @@ class DGBinaryOperator : public DGOperator {
 	public:
 		virtual ~DGBinaryOperator();
 		virtual Graph& execute();
-		void addConsistentEdges();
+		void copyConsistentEdges(Graph&, Graph&, Graph&);
 };
 
 #endif /* DGBINARYOPERATOR_H */

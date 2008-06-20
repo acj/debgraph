@@ -19,6 +19,6 @@ Graph& Union::execute() {
 	for (GraphIterator i = smaller->begin(); i != smaller->end(); ++i) {
 		result.addNode(new Node(**i), Graph::DISCARD_DUP);
 	}
-	addConsistentEdges();
+	copyConsistentEdges(l_operand, r_operand, result);
 	return result;
 }

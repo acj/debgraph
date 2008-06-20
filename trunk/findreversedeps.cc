@@ -37,6 +37,6 @@ Graph& FindReverseDeps::execute() {
 			}
 		}
 	}
-	addConsistentEdges();
+	copyConsistentEdges(operand, result);
 	return result;
 }

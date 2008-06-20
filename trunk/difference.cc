@@ -14,6 +14,6 @@ Graph& Difference::execute() {
 			result.deleteNode(searchNodeId);
 		}
 	}
-	addConsistentEdges();
+	copyConsistentEdges(l_operand, r_operand, result);
 	return result;
 }
