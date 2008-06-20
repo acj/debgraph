@@ -1,16 +1,19 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 
 #include "findcycles.h"
 
+// NB: Constructor defined in header file.
+
+FindCycles::~FindCycles() {
+}
+
 bool NodeNameComparator(const Node *a, const Node *b) {
 	return (const_cast<Node*>(a))->getProperty("Package") < 
 			(const_cast<Node*>(b))->getProperty("Package");
-}
-
-FindCycles::~FindCycles() {
 }
 
 static inline int min(int a, int b) {
@@ -249,10 +252,8 @@ void FindCycles::pre_dep(Graph &g, string release) {
 	ae.insert(Entity::HAS_VERSION);
 
 	/* mark all binaries as handled */
-	multimap<string, Node*> nIndex = g.getIndex();
-	for (multimap<string, Node*>::iterator i = nIndex.begin();
-		i != nIndex.end(); i++) {
-		Node *n = i->second;
+	for (GraphIterator gi = g.begin(); gi != g.end(); ++gi) {
+		Node *n = *gi;
 		if (n->getType() == Entity::BINARY) {
 			n->setMark(2);
 		}
@@ -286,10 +287,8 @@ void FindCycles::norm_dep(Graph &g, string release) {
 	ae.insert(Entity::HAS_VERSION);
 
 	/* mark all binaries as handled */
-	multimap<string, Node*> nIndex = g.getIndex();
-	for (multimap<string, Node*>::iterator i = nIndex.begin();
-		i != nIndex.end(); i++) {
-		Node *n = i->second;
+	for (GraphIterator gi = g.begin(); gi != g.end(); ++gi) {
+		Node *n = *gi;
 		if (n->getType() == Entity::BINARY) {
 			n->setMark(2);
 		}
@@ -320,14 +319,18 @@ void FindCycles::norm_dep(Graph &g, string release) {
 	cout << endl;
 }
 
-void FindCycles::run(Graph &g) {
+vector<Graph>& FindCycles::getCycles() {
+	return cycles;
+}
+
+Graph& FindCycles::execute() {
 
 	cout << "<h1>CYCLICTEST</h1>" << endl;
 
 /*	pre_dep(g, "stable");
 	pre_dep(g, "testing");
 	pre_dep(g, "unstable");*/
-	norm_dep(g, "stable");
+	norm_dep(operand, "stable");
 	ssource.unique();
 	ofstream of;
 	of.open("stable_packages.txt");
@@ -337,7 +340,7 @@ void FindCycles::run(Graph &g) {
 	}
 	of.close();
 	ssource.clear();
-	norm_dep(g, "testing");
+	norm_dep(operand, "testing");
 	ssource.unique();
 	of.open("testing_packages.txt");
 	for (list<string>::iterator it = ssource.begin();
@@ -348,7 +351,7 @@ void FindCycles::run(Graph &g) {
 	ssource.clear();
 	packages.clear();
 	ccount = 0;
-	norm_dep(g, "unstable");
+	norm_dep(operand, "unstable");
 	ssource.unique();
 	of.open("unstable_packages.txt");
 	for (list<string>::iterator it = ssource.begin();
@@ -374,12 +377,13 @@ void FindCycles::run(Graph &g) {
 	}
 	of.close();
 	
-	multimap<string, Node*> nIndex = g.getIndex();
-	for (multimap<string, Node*>::iterator i = nIndex.begin();
-		i != nIndex.end(); i++) {
-		Node *n = i->second;
+	for (GraphIterator gi = operand.begin(); gi != operand.end(); ++gi) {
+		Node *n = *gi;
 		n->setMark(0);
 	}
 
 	cout << endl;
+
+	// XXX Do something useful for output...
+	return operand;
 }

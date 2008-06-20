@@ -2,10 +2,13 @@
 #define FINDCYCLES_H
 
 #include <list>
+#include <vector>
+#include "dgunaryoperator.h"
+#include "graph.h"
 
-#include "testkit.h"
-
-class FindCycles: public Test {
+class FindCycles: public DGUnaryOperator {
+	private:
+		vector<Graph> cycles;
 	protected:
 		int tarjan(Graph *g, Node *n, list<Node*> *l, int *N, 
 			set<Entity::EntityType> &ae, string dist);
@@ -15,10 +18,10 @@ class FindCycles: public Test {
 		int ccount;
 		list<string> packages;
 	public:
-		void run(Graph &g);
-		virtual ~FindCycles();
+		vector<Graph>& getCycles();
+		Graph& execute();
+		FindCycles(Graph &g) : DGUnaryOperator(g) { };
+		~FindCycles();
 };
-
-static TestKit *_tk = TestKit::instance()->addTest(new FindCycles());
 
 #endif /* FINDCYCLES_H */
