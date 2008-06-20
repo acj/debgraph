@@ -20,9 +20,6 @@ class Node : public Entity {
 		Graph *parentGraph;
 		EdgeSet outEdges;
 		EdgeSet inEdges;
-		int dfs;
-		int low;
-		int mark;
 	public:
 		Node();
 		Node(Node&);
@@ -35,12 +32,6 @@ class Node : public Entity {
 		void setId(string &nid);
 		bool hasEdgeFrom(Node*) const;
 		bool hasEdgeTo(Node*) const;
-		void setDfs(int);
-		int getDfs() const;
-		void setLow(int);
-		int getLow() const;
-		void setMark(int);
-		int getMark() const;
 		EdgeSet& getInEdges();
 		EdgeSet& getOutEdges();
 		string toGraphviz();

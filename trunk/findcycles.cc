@@ -9,6 +9,7 @@ using namespace std;
 // NB: Constructor defined in header file.
 
 FindCycles::~FindCycles() {
+	// XXX Deallocate memory for traversal data
 }
 
 bool NodeNameComparator(const Node *a, const Node *b) {
@@ -136,187 +137,77 @@ int printGraph(list<Node*> &l, ostream &os = cout) {
 	return pdc;
 }
 
-int FindCycles::tarjan(Graph *g, Node *n, 
-	list<Node*> *l, int *N, set<Entity::EntityType> &ae, string dist) {
+// Implementation of Tarjan's algorithm for finding strongly connected
+// components.
+// 
+// Arguments:
+// 	 g: the graph to be traversed
+// 	 n:	an arbitrary node to seed the DFS
+// 	 l:	trace of nodes in the current DFS tree	
+// 	 N: Tarjan's index (indicates discovery order)
+// 	 dist: the distribution that we wish to examine for cycles (e.g. "stable")
+int FindCycles::tarjan(Graph &g, Node *n, 
+	list<Node*> *l, int *N, string dist) {
 	l->push_back(n);
-	n->setDfs(*N);
-	n->setLow(*N);
+	NodeState *nState = traversalData[n->getId()];
+	nState->dfs = *N;
+	nState->low = *N;
 	(*N)++;
 	int retval = 0;
-
 	/* recursion */
 	set<Edge*> s = n->getOutEdges();
 	set<Edge*>::iterator i;
 	for (i = s.begin(); i != s.end(); i++) {
 		/* examine this link */
-		if (ae.find((*i)->getType()) != ae.end()) {
+		if (allowedEntities.find((*i)->getType()) != allowedEntities.end()) {
 			Node *on = const_cast<Node*>((*i)->getToNode());
-			if (on->getMark() == 0) {
-				on->setMark(1);
-				retval += tarjan(g, on, l, N, ae, dist);
-				n->setLow(min(n->getLow(), on->getLow()));
+			NodeState *onState = traversalData[on->getId()];
+			if (onState->mark == 0) {
+				onState->mark = 1; // mark as discovered
+				retval += tarjan(g, on, l, N, dist);
+				nState->low = min(nState->low, onState->low);
 			}
-			else if (on->getMark() == 1) {
-				n->setLow(min(n->getLow(), on->getDfs()));
+			else if (onState->mark == 1) {
+				nState->low = min(nState->low, onState->dfs);
 			}
 		}
 	}
-
-	if (n->getLow() == n->getDfs()) {
+	if (nState->low == nState->dfs) {
+		/* found an SCC - unwind the stack to discover its nodes */
 		Node *cn;
-		list<Node*> tl;
+		Graph newCycle;
 		int bc = 0;
 		do {
 			cn = l->back();
 			l->pop_back();
-			cn->setMark(2);
+			NodeState *cnState = traversalData[cn->getId()];
+			cnState->mark = 2; // mark as handled
 			if (cn->getType() == Entity::BINARY) {
 				bc++;
 			}
-			tl.push_back(cn);
+			newCycle.addNode(new Node(*cn));
 		} while (cn != n);
-		if (bc > 1) {
-			/* XXX sort tl to make this more stable */
-			tl.sort(NodeNameComparator);
-			list<Node*>::iterator i;
-			cout << "* ";
-			string filename = "";
-			string filename2;
-			string line;
-			for (i = tl.begin(); i != tl.end(); i++) {
-				if ((*i)->getType() == Entity::BINARY) {
-					ssource.push_back((*i)->getProperty("Maintainer") + "\t" + 
-									(*i)->getProperty("Package"));
-					/* XXX filename misses release */
-					if (filename < (*i)->getProperty("Package")) {
-						
-						filename = (*i)->getProperty("Package");
-					}
-					line += (*i)->getProperty("Package")
-						+ " ";
-				}
-/*			if ((pnode) || (! (sourcePackage(pnode) 
-					== sourcePackage(*i)))) {
-					is_single_source = false;	
-				}
-				pnode = (*i);*/
-			}
-		/*	if (is_single_source) {
-				ssource.push_back(sourcePackage(pnode));
-			}*/
-			packages.push_back(line);
-			filename2 = "dot/" + filename + "_" + dist + ".png";
-			cout << "<a href=\"" + filename2 + "\">" + line + "</a>" ;
-			//cout << line;
-			filename2 = "dot/" + filename + "_" + dist + ".dot";
-			ofstream of;
-			of.open(filename2.c_str());
-			int pdc = printGraph(tl, of);
-			ccount++;
-			of.close();
-			//cout << "(" << pdc << " pre-depends)<br>" << endl;
-			if (pdc > 0) {
-				cout << " (" << pdc << " pre-depends)<br>\n" << endl;
-			}
-			else {
-				cout << "<br>\n";
-			}
-			retval++;
-		}
+		copyConsistentEdges(operand, newCycle);
+		cycles.push_back(newCycle);
 	}
 	return retval;
 }
 
-void mark_rec(Node *n, int depth, int mark) {
+void FindCycles::markRecursive(Node *n, int depth, int mark) {
 	if (depth == 0) {
 		return;
 	}
 	if (n->getType() != Entity::OR) {
 		depth--;
 	}
-	n->setMark(mark);
+	NodeState *nState = traversalData[n->getId()];
+	nState->mark = mark;
 	set<Edge*> s = n->getOutEdges();
 	set<Edge*>::iterator i;
 	for (i = s.begin(); i != s.end(); i++) {
 		Node *on = const_cast<Node*>((*i)->getToNode());
-		mark_rec(on, depth, mark);
+		markRecursive(on, depth, mark);
 	}
-}
-
-void FindCycles::pre_dep(Graph &g, string release) {
-	int N = 0;
-	list<Node*> l;
-	set<Entity::EntityType> ae;
-	ae.insert(Entity::CONTAINS);
-	ae.insert(Entity::PRE_DEPENDS);
-	ae.insert(Entity::HAS_VERSION);
-
-	/* mark all binaries as handled */
-	for (GraphIterator gi = g.begin(); gi != g.end(); ++gi) {
-		Node *n = *gi;
-		if (n->getType() == Entity::BINARY) {
-			n->setMark(2);
-		}
-		else {
-			n->setMark(0);
-		}
-	}
-	cout << "<h2>Cyclic Pre-Depends (" << release << ")</h2>" << endl;
-	Node *n = g.findNode("Release:"+release);
-	if (n == NULL) {
-		cout << "Error: Release \"" << release << 
-		"\" not found in graph<br>" << endl;
-	}
-	else {
-		/* mark as unhadled in our release  */
-		mark_rec(n, 4, 0);
-		if (tarjan(&g, n, &l, &N, ae, release) == 0) {
-			cout << "none<br>" << endl;
-		}
-	}
-	cout << endl;
-}
-
-void FindCycles::norm_dep(Graph &g, string release) {
-	int N = 0;
-	list<Node*> l;
-	set<Entity::EntityType> ae;
-	ae.insert(Entity::CONTAINS);
-	ae.insert(Entity::PRE_DEPENDS);
-	ae.insert(Entity::DEPENDS);
-	ae.insert(Entity::HAS_VERSION);
-
-	/* mark all binaries as handled */
-	for (GraphIterator gi = g.begin(); gi != g.end(); ++gi) {
-		Node *n = *gi;
-		if (n->getType() == Entity::BINARY) {
-			n->setMark(2);
-		}
-		else {
-			n->setMark(0);
-		}
-	}
-	cout << "<h2>Cyclic Depends (" << release << ")</h2>" << endl;
-	/* XXX dirty */
-	if (release == "unstable") {
-		cout << "[<a href=\"progress.png\">Progress</a>] " << endl;
-		cout << "[<a href=\"unstable_diffs.txt\">Diffs</a>] " << endl;
-		cout << "[<a href=\"unstable_developers.txt\">Developers</a>] " << endl;
-		cout << "<br/><br/>" << endl;
-	}
-	Node *n = g.findNode("Release:"+release);
-	if (n == NULL) {
-		cout << "Error: Release \"" << release << 
-		"\" not found in graph<br>" << endl;
-	}
-	else {
-		/* mark as unhadled in our release  */
-		mark_rec(n, 3, 0);
-		if (tarjan(&g, n, &l, &N, ae, release) == 0) {
-			cout << "none<br>" << endl;
-		}
-	}
-	cout << endl;
 }
 
 vector<Graph>& FindCycles::getCycles() {
@@ -324,66 +215,26 @@ vector<Graph>& FindCycles::getCycles() {
 }
 
 Graph& FindCycles::execute() {
+	int N = 0;
+	list<Node*> l;
+	string release = "unstable";
 
-	cout << "<h1>CYCLICTEST</h1>" << endl;
-
-/*	pre_dep(g, "stable");
-	pre_dep(g, "testing");
-	pre_dep(g, "unstable");*/
-	norm_dep(operand, "stable");
-	ssource.unique();
-	ofstream of;
-	of.open("stable_packages.txt");
-	for (list<string>::iterator it = ssource.begin();
-		it != ssource.end(); it++) {
-		of << *it << endl;
-	}
-	of.close();
-	ssource.clear();
-	norm_dep(operand, "testing");
-	ssource.unique();
-	of.open("testing_packages.txt");
-	for (list<string>::iterator it = ssource.begin();
-		it != ssource.end(); it++) {
-		of << *it << endl;
-	}
-	of.close();
-	ssource.clear();
-	packages.clear();
-	ccount = 0;
-	norm_dep(operand, "unstable");
-	ssource.unique();
-	of.open("unstable_packages.txt");
-	for (list<string>::iterator it = ssource.begin();
-		it != ssource.end(); it++) {
-		of << *it << endl;
-	}
-	time_t ct;
-	time(&ct);
-	struct tm *st;
-	st = localtime(&ct);
-	char buffer[100];
-	strftime(buffer, 100, "%d.%m.%Y", st);
-	of.close();
-	string date = buffer;
-	of.open("unstable_progress.txt", ofstream::out | ofstream::app);
-		of << date << "\t" << ccount << endl;
-	of.close();
-	packages.sort();
-	of.open("unstable_raw.txt", ofstream::out | ofstream::trunc);
-	for (list<string>::iterator it = packages.begin();
-		it != packages.end(); it++) {
-		of << *it << endl;
-	}
-	of.close();
-	
-	for (GraphIterator gi = operand.begin(); gi != operand.end(); ++gi) {
-		Node *n = *gi;
-		n->setMark(0);
-	}
-
-	cout << endl;
-
+	tarjan(operand, *(operand.begin()), &l, &N, release);
 	// XXX Do something useful for output...
 	return operand;
+}
+
+void FindCycles::initTraversalData() {
+	for (GraphIterator gi = operand.begin(); gi != operand.end(); ++gi) {
+		Node *n = *gi;
+		NodeState *nState = new NodeState; // dfs, low, mark
+		nState->dfs = 0;
+		nState->low = 0;
+		nState->mark = 0;
+		if (n->getType() == Entity::BINARY) {
+			/* mark all binaries as handled */
+			nState->mark = 2;
+		}
+		traversalData.insert(pair<string,NodeState*>(n->getId(), nState));
+	}
 }

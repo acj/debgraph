@@ -9,16 +9,12 @@ Node::Node() {
 
 Node::Node(Node &node) {
 	id = node.id;
-	dfs = node.dfs;
-	low = node.low;
-	mark = node.mark;
 	properties = node.properties;
 	parentGraph = node.parentGraph;
 }
 
 Node::Node(const string &nodeId) {
 	id = nodeId;
-	mark = 0;
 	parentGraph = 0;
 }
 
@@ -34,9 +30,6 @@ Node::~Node() {
 Node& Node::operator=(Node &n) {
 	if (this != &n) {
 		id = n.id;
-		dfs = n.dfs;
-		low = n.low;
-		mark = n.mark;
 		properties = n.properties;
 		parentGraph = n.parentGraph;
 	}
@@ -85,30 +78,6 @@ bool Node::hasEdgeTo(Node *n) const {
 		}
 	}
 	return false;
-}
-
-void Node::setDfs(int d) {
-	dfs = d;
-}
-
-int Node::getDfs() const {
-	return dfs;
-}
-
-void Node::setLow(int l) {
-	low = l;
-}
-
-int Node::getLow() const {
-	return low;
-}
-
-void Node::setMark(int m) {
-	mark = m;
-}
-
-int Node::getMark() const {
-	return mark;
 }
 
 string Node::toGraphviz() {
