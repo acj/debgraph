@@ -1,23 +1,24 @@
 #ifndef FINDCYCLES_H
 #define FINDCYCLES_H
 
-#include <vector>
-#include "dgunaryoperator.h"
-#include "graph.h"
+#include <list>
 
-using namespace std;
+#include "testkit.h"
 
-class FindCycles : DGUnaryOperator {
-	private:
-		vector<Graph> cycles;
-		size_t cycle_limit;
+class FindCycles: public Test {
+	protected:
+		int tarjan(Graph *g, Node *n, list<Node*> *l, int *N, 
+			set<Entity::EntityType> &ae, string dist);
+		void pre_dep(Graph &g, string release);
+		void norm_dep(Graph &g, string release);
+		list<string> ssource;
+		int ccount;
+		list<string> packages;
 	public:
-		FindCycles(Graph &g, size_t max_cycles = 0) : DGUnaryOperator(g)
-		{
-			cycle_limit = max_cycles;
-		};
-		~FindCycles();
-		Graph& execute();
-		vector<Graph>& getCycles();
+		void run(Graph &g);
+		virtual ~FindCycles();
 };
+
+static TestKit *_tk = TestKit::instance()->addTest(new FindCycles());
+
 #endif /* FINDCYCLES_H */
