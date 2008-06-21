@@ -146,25 +146,26 @@ int printGraph(list<Node*> &l, ostream &os = cout) {
 // 	 l:	trace of nodes in the current DFS tree	
 // 	 N: Tarjan's index (indicates discovery order)
 // 	 dist: the distribution that we wish to examine for cycles (e.g. "stable")
-int FindCycles::tarjan(Graph &g, Node *n, 
-	list<Node*> *l, int *N, string dist) {
+int FindCycles::tarjan(Graph &g, Node *n, list<Node*> *l, int *N) {
 	l->push_back(n);
 	NodeState *nState = traversalData[n->getId()];
 	nState->dfs = *N;
 	nState->low = *N;
 	(*N)++;
 	int retval = 0;
+	string nodePackName = n->getProperty("Package");
 	/* recursion */
+	NodeState *onState;
 	set<Edge*> s = n->getOutEdges();
-	set<Edge*>::iterator i;
+	set<Edge*>::const_iterator i;
 	for (i = s.begin(); i != s.end(); i++) {
 		/* examine this link */
 		if (allowedEntities.find((*i)->getType()) != allowedEntities.end()) {
 			Node *on = const_cast<Node*>((*i)->getToNode());
-			NodeState *onState = traversalData[on->getId()];
+			onState = traversalData[on->getId()];
 			if (onState->mark == 0) {
 				onState->mark = 1; // mark as discovered
-				retval += tarjan(g, on, l, N, dist);
+				retval += tarjan(g, on, l, N);
 				nState->low = min(nState->low, onState->low);
 			}
 			else if (onState->mark == 1) {
@@ -175,20 +176,22 @@ int FindCycles::tarjan(Graph &g, Node *n,
 	if (nState->low == nState->dfs) {
 		/* found an SCC - unwind the stack to discover its nodes */
 		Node *cn;
-		Graph newCycle;
-		int bc = 0;
+		list<Node*> tl;
 		do {
 			cn = l->back();
 			l->pop_back();
 			NodeState *cnState = traversalData[cn->getId()];
 			cnState->mark = 2; // mark as handled
-			if (cn->getType() == Entity::BINARY) {
-				bc++;
-			}
-			newCycle.addNode(new Node(*cn));
+			tl.push_back(cn);
 		} while (cn != n);
-		copyConsistentEdges(operand, newCycle);
-		cycles.push_back(newCycle);
+		if (tl.size() > 1) {
+			Graph newCycle;
+			for (list<Node*>::const_iterator i = tl.begin(); i != tl.end(); i++) {
+					newCycle.addNode(new Node(**i));
+			}
+			copyConsistentEdges(operand, newCycle);
+			cycles.push_back(newCycle);
+		}
 	}
 	return retval;
 }
@@ -215,11 +218,18 @@ vector<Graph>& FindCycles::getCycles() {
 }
 
 Graph& FindCycles::execute() {
-	int N = 0;
-	list<Node*> l;
-	string release = "unstable";
-
-	tarjan(operand, *(operand.begin()), &l, &N, release);
+	Node *startNode = operand.findNode(startNodeId);
+	if (startNode == NULL) {
+		cout << "Error: Starting node \"" << startNodeId 
+			 << "\" not found in graph" << endl;
+	}
+	else {
+		// Mark as unhandled in our release.
+		markRecursive(startNode, 4, 0);
+		int N = 0;
+		list<Node*> l;
+		tarjan(operand, startNode, &l, &N);
+	}
 	// XXX Do something useful for output...
 	return operand;
 }

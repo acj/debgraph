@@ -38,17 +38,18 @@ bool FindCyclesTest::run(Graph &g) {
 	chickencycle << g1.toGraphviz();
 	chickencycle.close();
 
-	FindCycles fc = FindCycles(g1);
+	FindCycles fc(g1, FindCycles::DEPENDS, "Chicken");
 	Graph result = fc.execute();
-	cout << "\n\tFound " << fc.getCycles().size() << " cycles" << endl;
+	size_t cycleCount = fc.getCycles().size();
+	cout << "\n\tFound " << cycleCount << " cycles" << endl;
+	char cycleName[25];
+	for (size_t i = 0; i<cycleCount; ++i) {
+		sprintf(cycleName, "out/findcycles-%d.dot", i);
+		ofstream dotfile(cycleName);
+		dotfile << fc.getCycles()[i].toGraphviz();
+		dotfile.close();
+	}
 	if (fc.getCycles().size() == 3) {
-		char cycleName[25];
-		for (unsigned int i = 0; i<3; ++i) {
-			sprintf(cycleName, "out/findcycles-%d.dot", i);
-			ofstream dotfile(cycleName);
-			dotfile << fc.getCycles()[i].toGraphviz();
-			dotfile.close();
-		}
 		return true;
 	}
 	else {

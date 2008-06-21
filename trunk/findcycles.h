@@ -22,24 +22,27 @@ class FindCycles: public DGUnaryOperator {
 			int low;
 			int mark;
 		};
-		void initTraversalData();
-		void markRecursive(Node *, int, int);
 		set<Entity::EntityType> allowedEntities;
 		vector<Graph> cycles;
+		string startNodeId;
 		map<string,NodeState*> traversalData;
+
+		void initTraversalData();
+		void markRecursive(Node *, int, int);
 	protected:
-		int tarjan(Graph &g, Node *n, list<Node*> *l, int *N, string dist);
-		list<string> ssource;
-		list<string> packages;
+		int tarjan(Graph&, Node*, list<Node*>*, int*);
 	public:
 		vector<Graph>& getCycles();
 		Graph& execute();
-		FindCycles(Graph &g, set<Entity::EntityType> eTypes) : DGUnaryOperator(g)
+		FindCycles(Graph &g, set<Entity::EntityType> eTypes, string startNode)
+			: DGUnaryOperator(g)
 		{
 			allowedEntities = eTypes;
 			initTraversalData();
+			startNodeId = startNode;
 		};
-		FindCycles(Graph &g, EntityGroup eGroup = DEPENDS) : DGUnaryOperator(g)
+		FindCycles(Graph &g, EntityGroup eGroup, string startNode)
+			: DGUnaryOperator(g)
 		{
 			switch(eGroup) {
 				case PRE_DEPENDS:
@@ -64,6 +67,7 @@ class FindCycles: public DGUnaryOperator {
 					break;
 			}
 			initTraversalData();
+			startNodeId = startNode;
 		};
 		~FindCycles();
 };
