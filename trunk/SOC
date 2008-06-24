@@ -37,7 +37,7 @@ change during the work.
 	+ Define generic interface
 	* Possible operators
 		(Essential)
-		+ Count nodes in a graph
+		- Count nodes in a graph (implemented as Graph member function)
 		- Compute intersection of two sets of nodes 
 		- Compute union of two sets of nodes
 		- Compute xor of two sets of nodes
@@ -47,15 +47,16 @@ change during the work.
 		+ State machine to track traversal info (cf. next two items)
 		- Recursively find nodes' dependencies
 		- Recursively find nodes' dependents (traverse edges in reverse)
-		+ Merge subgraphs (or maybe merge sets of nodes into a single node 
-		  in order to simulate a virtual package?)
+		- Merge ("Canonify"?) subgraphs (or maybe merge sets of nodes into 
+		  a single node in order to simulate a virtual package?)
+		    * Implemented as mergePackageVersions() member of DGOperator
 		+ Invert node selection (complement)
 		- Find cycles (e.g., recursive depends/conflicts)
 			- Handle disconnected components (islands) correctly
 			+ Need to be able to specify the type of cycle (depends,
 			  conflicts, etc.)
+			+ Flag to follow the same architecture throughout
 			+ Return a useful result (set of Graphs?)
-		+ Find strongly connected components (Tarjan)
 		(Exotic)
 		+ TBD
 + implement them. this is a "milestone delivery", to be completed by 10

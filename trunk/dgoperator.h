@@ -12,6 +12,7 @@ class DGOperator {
 	public:
 		virtual ~DGOperator();
 		virtual Graph& execute() = 0;
+		void mergePackageVersions(Graph&);
 };
 
 #endif /* DGOPERATOR_H */
