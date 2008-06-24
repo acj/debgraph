@@ -8,9 +8,9 @@ DGUnaryOperator::~DGUnaryOperator() {
 }
 
 void DGUnaryOperator::copyConsistentEdges(Graph &source, Graph &sink) {
+	Node *n;
+	Edge *e;
 	for (GraphIterator i = sink.begin(); i != sink.end(); ++i) {
-		Node *n;
-		Edge *e;
 		string fromNodeId, toNodeId;
 		set<Edge*> outEdges;
 		set<Edge*>::const_iterator edgeIter;
