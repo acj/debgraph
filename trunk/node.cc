@@ -9,6 +9,7 @@ Node::Node() {
 
 Node::Node(Node &node) {
 	id = node.id;
+	type = node.type;
 	properties = node.properties;
 	parentGraph = node.parentGraph;
 }
@@ -84,11 +85,16 @@ string Node::toGraphviz() {
 	string output("\tnode");
 	char node_id_salt[10]; // XXX Make safe for 64-bit architectures
 	sprintf(node_id_salt, "%u", (unsigned int)this);
-	output += string(node_id_salt) 
-		+ " [ label = \"" + getProperty("Package") 
-		+ "\\n" + getProperty("Version") 
-		+ "\\n" + getProperty("Architecture") 
-		+ "\" ];\n";
+	output += string(node_id_salt) + "[";
+	if (getProperty("Package") == "" && getType() == Entity::OR) {
+		output += "shape=circle, label=\"OR\" ";
+	}
+	else {
+		output += "label = \"" + getProperty("Package") 
+			+ "\\n" + getProperty("Version") 
+			+ "\\n" + getProperty("Architecture");
+	}
+	output += "\"];\n";
 	for (set<Edge*>::iterator i = outEdges.begin(); i != outEdges.end(); ++i) {
 		output += (*i)->toGraphviz();	
 	}
