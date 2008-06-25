@@ -69,6 +69,11 @@ class FindCycles: public DGUnaryOperator {
 			initTraversalData();
 			startNodeId = startNode;
 		};
+		FindCycles(Graph &g, EntityGroup eGroup) : DGUnaryOperator(g)
+		{
+			Node *n = *(g.begin());
+			FindCycles(g, eGroup, n->getId());
+		};
 		~FindCycles();
 };
 

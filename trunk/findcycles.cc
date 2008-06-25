@@ -41,102 +41,6 @@ string sourcePackage(Node *p) {
 	return "";
 }
 
-int printGraph(list<Node*> &l, ostream &os = cout) {
-	int pdc = 0;
-	os << "digraph {" << endl
-		<< "node [shape=rect];" << endl
-		<< "edge [arrowhead=onormal];" << endl;
-	list<Node*>::iterator i;
-	map<Node*, Node*> replace;
-	set<Node*> ls;
-	for (i = l.begin(); i != l.end(); i++) {
-		ls.insert(ls.begin(), *i);
-		if ((*i)->getType() == Entity::BINARYNAME) {
-			/* find the corresponding binary */
-			list<Node*>::iterator j;
-			for (j = l.begin(); j != l.end(); j++) {
-				if ((*j)->getType() == Entity::BINARY) {
-					string a = (*j)->getProperty("Package");
-					string b =(*i)->getProperty("Package");
-					if (a == b) {
-						replace.insert(
-						pair<Node*, Node*>(*j, *i));
-					}
-				}
-			}
-		}
-	}
-	for (i = l.begin(); i != l.end(); i++) {
-		set<Edge*> e = (*i)->getOutEdges();
-		set<Edge*>::iterator ei;
-		for (ei = e.begin(); ei != e.end(); ei++) {
-			Node *on = const_cast<Node*>((*ei)->getToNode());
-			if (ls.find(on) == ls.end()) {
-				continue;
-			}
-			if (((*ei)->getType() != Entity::DEPENDS) &&
-				((*ei)->getType() != Entity::PRE_DEPENDS)) {
-				continue;
-			}
-			/* check if we need to replace this */
-			if (replace.find(on) != replace.end()) {
-				on = replace.find(on)->second;
-			}
-			string a = (*i)->getProperty("Package");
-			if (a == "") {
-				a = hex(*i);
-				if ((*i)->getType() == Entity::OR) {
-					os << a << "[shape=circle,label=\"OR\"];" << endl;
-				}
-				else {
-					os << a << "[shape=circle,label=\"\"];" << endl;
-				}
-			}
-			unsigned int p;
-			while ((p = a.find("-")) != string::npos) {
-				a.replace(p,1,"_");
-			}
-			while ((p = a.find(".")) != string::npos) {
-				a.replace(p,1,"_");
-			}
-			while ((p = a.find("+")) != string::npos) {
-				a.replace(p,1,"_");
-			}
-			string b = on->getProperty("Package");
-			if (b == "") {
-				b = hex(on);
-			}
-			while ((p = b.find("-")) != string::npos) {
-				b.replace(p,1,"_");
-			}
-			while ((p = b.find(".")) != string::npos) {
-				b.replace(p,1,"_");
-			}
-			while ((p = b.find("+")) != string::npos) {
-				b.replace(p,1,"_");
-			}
-			if ((*ei)->getType() == Entity::PRE_DEPENDS) {
-				pdc++;
-			}
-		/*	os << "\t" << a << " -> " << b << " [label=";
-			switch ((*ei)->getType()) {
-				case Entity::PRE_DEPENDS:
-					os << "Pre-Depends";
-					break;
-				case Entity::DEPENDS:
-					os << "Depends";
-					break;
-				default:
-					os << "\"\"";
-			}
-			os << "];" << endl;*/
-			os << "\t" << a << " -> " << b << ";" << endl;
-		}
-	}
-	os << "}" << endl;
-	return pdc;
-}
-
 // Implementation of Tarjan's algorithm for finding strongly connected
 // components.
 // 
@@ -229,6 +133,16 @@ Graph& FindCycles::execute() {
 		int N = 0;
 		list<Node*> l;
 		tarjan(operand, startNode, &l, &N);
+	}
+	// Re-run the algorithm for any undiscovered nodes
+	NodeState *nState;
+	for (GraphIterator gi = operand.begin(); gi != operand.end(); ++gi) {
+		nState = traversalData[(*gi)->getId()];
+		if (nState->mark == 0) {
+			int N = 0;
+			list<Node*> l;
+			tarjan(operand, *gi, &l, &N);
+		}
 	}
 	// XXX Do something useful for output...
 	return operand;
