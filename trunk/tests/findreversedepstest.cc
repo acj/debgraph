@@ -5,14 +5,25 @@
 #include "findreversedepstest.h"
 
 bool FindReverseDepsTest::run(Graph &g) {
-	// FIXME: Need a more robust (and self-contained) test case
-	string target = "Binary:arping:2.05-2:i386";
-	Node *n = g.findNode(target);
+	Graph depGraph;
+	Node *tree = new Node("Tree");
+	tree->setType(Entity::BINARY);
+	Node *soil = new Node("Soil");
+	soil->setType(Entity::BINARY);
+
+	depGraph.addNode(tree);
+	depGraph.addNode(soil);
+	Edge::createEdge(tree, soil, Entity::DEPENDS, Edge::IGNORE_DUP);
+	Graph result = FindReverseDeps(g, soil).execute();
+	Node *n = result.findNode("Tree");
 	if (n == 0) {
-		cerr << "Could not find node: " << target << endl;
+		cerr << "Could not find node 'Tree'" << endl;
 		return false;
 	}
-	Graph result = FindReverseDeps(g, n).execute();
+	if (n->getId() != "Tree") {
+		cerr << "Incorrect dependent node found" << endl;
+		return false;
+	}
 	ofstream dotfile("out/findreversedeps.dot");
 	dotfile << result.toGraphviz();
 	dotfile.close();
