@@ -2,6 +2,6 @@
 
 echo "Creating directories...";
 mkdir -p cache
-mkdir -p out
+mkdir -p out/dot
 mkdir -p tests/out
 ln -s ../cache tests

@@ -124,7 +124,7 @@ vector<Graph>& FindCycles::getCycles() {
 Graph& FindCycles::execute() {
 	Node *startNode = operand.findNode(startNodeId);
 	if (startNode == NULL) {
-		cout << "Error: Starting node \"" << startNodeId 
+		cout << "\n\tError: Starting node \"" << startNodeId 
 			 << "\" not found in graph" << endl;
 	}
 	else {
@@ -133,15 +133,17 @@ Graph& FindCycles::execute() {
 		int N = 0;
 		list<Node*> l;
 		tarjan(operand, startNode, &l, &N);
-	}
-	// Re-run the algorithm for any undiscovered nodes
-	NodeState *nState;
-	for (GraphIterator gi = operand.begin(); gi != operand.end(); ++gi) {
-		nState = traversalData[(*gi)->getId()];
-		if (nState->mark == 0) {
-			int N = 0;
-			list<Node*> l;
-			tarjan(operand, *gi, &l, &N);
+		if (discoverAllNodes) {
+			// Re-run the algorithm for any undiscovered nodes
+			NodeState *nState;
+			for (GraphIterator gi = operand.begin(); gi != operand.end(); ++gi) {
+				nState = traversalData[(*gi)->getId()];
+				if (nState->mark == 0) {
+					int N = 0;
+					list<Node*> l;
+					tarjan(operand, *gi, &l, &N);
+				}
+			}
 		}
 	}
 	// XXX Do something useful for output...

@@ -7,11 +7,23 @@
 #include "finddeps.h"
 
 bool CyclicTest::run(Graph &g) {
-	FindCycles fc(g, FindCycles::DEPENDS, "Release:unstable");
+	ofstream htmlout("out/cyclictest.html");
+	htmlout << "<h1>CYCLICTEST</h1>\n\t";
+
+	findCyclesInDist(g, "stable", htmlout);
+	findCyclesInDist(g, "testing", htmlout);
+	findCyclesInDist(g, "unstable", htmlout);
+	htmlout.close();
+	return true;
+}
+
+void CyclicTest::findCyclesInDist(Graph &g, string distro, ofstream &out) {
+	out << "<h2>Cyclic Depends (" << distro << ")</h2>" << endl;
+	FindCycles fc(g, FindCycles::DEPENDS, "Release:" + distro, false);
 	fc.execute();
 	vector<Graph>& cycles = fc.getCycles();
-	cout << "\n\tFound " << cycles.size() << endl;
-	char cycleName[35];
+	cout << "Found " << cycles.size() << " cycles in Release:" << distro
+		 << endl;
 	for (size_t i = 0; i < cycles.size(); ++i) {
 		// Write out the original
 		//sprintf(cycleName, "out/cyclictest-orig-%d.dot", i);
@@ -20,10 +32,19 @@ bool CyclicTest::run(Graph &g) {
 		//dotfile_orig.close();
 		// Write out the reduced (BINARYNAME only) version
 		fc.mergePackageVersions(cycles[i]);
-		sprintf(cycleName, "out/cyclictest-%d.dot", i);
-		ofstream dotfile(cycleName);
+
+		GraphIterator gIter = cycles[i].begin();
+		string pngFilename = "dot/" + distro + "-" + (*gIter)->getId() + ".png";
+		string dotFilename = "out/dot/" + distro + "-" + (*gIter)->getId() + ".dot";
+		// Graphviz output
+		ofstream dotfile(dotFilename.c_str());
 		dotfile << cycles[i].toGraphviz();
 		dotfile.close();
+		// HTML output
+		out << "* <a href=\"" << pngFilename << "\">";
+		for (; gIter != cycles[i].end(); ++gIter) {
+			out << (*gIter)->getProperty("Package") << " ";
+		}
+		out << "</a><br/>" << endl;
 	}
-	return true;
 }

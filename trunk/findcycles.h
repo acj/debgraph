@@ -24,6 +24,7 @@ class FindCycles: public DGUnaryOperator {
 		};
 		set<Entity::EntityType> allowedEntities;
 		vector<Graph> cycles;
+		bool discoverAllNodes;
 		string startNodeId;
 		map<string,NodeState*> traversalData;
 
@@ -34,15 +35,16 @@ class FindCycles: public DGUnaryOperator {
 	public:
 		vector<Graph>& getCycles();
 		Graph& execute();
-		FindCycles(Graph &g, set<Entity::EntityType> eTypes, string startNode)
-			: DGUnaryOperator(g)
+		FindCycles(Graph &g, set<Entity::EntityType> eTypes, string startNode, 
+				bool discoverAllNodesFlag=false) : DGUnaryOperator(g)
 		{
 			allowedEntities = eTypes;
+			discoverAllNodes = discoverAllNodesFlag;
 			initTraversalData();
 			startNodeId = startNode;
 		};
-		FindCycles(Graph &g, EntityGroup eGroup, string startNode)
-			: DGUnaryOperator(g)
+		FindCycles(Graph &g, EntityGroup eGroup, string startNode, 
+				bool discoverAllNodesFlag) : DGUnaryOperator(g)
 		{
 			switch(eGroup) {
 				case PRE_DEPENDS:
@@ -66,13 +68,14 @@ class FindCycles: public DGUnaryOperator {
 				default:
 					break;
 			}
+			discoverAllNodes = discoverAllNodesFlag;
 			initTraversalData();
 			startNodeId = startNode;
 		};
 		FindCycles(Graph &g, EntityGroup eGroup) : DGUnaryOperator(g)
 		{
 			Node *n = *(g.begin());
-			FindCycles(g, eGroup, n->getId());
+			FindCycles(g, eGroup, n->getId(), true);
 		};
 		~FindCycles();
 };

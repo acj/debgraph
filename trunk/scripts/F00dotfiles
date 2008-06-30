@@ -6,7 +6,7 @@ TARGET=$1
 # Process the debgraph "out" directory by default.
 if [ -z "$TARGET" ]
 then
-	TARGET="out"	
+	TARGET="out/dot"
 fi
 
 if [ -d $TARGET ]

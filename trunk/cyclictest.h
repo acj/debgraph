@@ -7,6 +7,7 @@ class CyclicTest : public Test {
 	public:
 		bool run(Graph &g);
 		inline string getName() { return "CyclicTest"; }
+		void findCyclesInDist(Graph&, string, ofstream&);
 };
 
 static TestKit *_tk = TestKit::instance()->addTest(new CyclicTest());
