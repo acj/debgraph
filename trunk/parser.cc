@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <cstring>
 #include "parser.h"
 
 Parser::Parser(istream &is) 
