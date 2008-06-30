@@ -83,14 +83,14 @@ bool Node::hasEdgeTo(Node *n) const {
 
 string Node::toGraphviz() {
 	string output("\tnode");
-	char node_id_salt[10]; // XXX Make safe for 64-bit architectures
+	char node_id_salt[11]; // XXX Make safe for 64-bit architectures
 	sprintf(node_id_salt, "%u", (unsigned int)this);
 	output += string(node_id_salt) + "[";
 	if (getProperty("Package") == "" && getType() == Entity::OR) {
 		output += "shape=circle, label=\"OR\" ";
 	}
 	else {
-		output += "label = \"" + getProperty("Package") 
+		output += "label=\"" + getProperty("Package") 
 			+ "\\n" + getProperty("Version") 
 			+ "\\n" + getProperty("Architecture");
 	}

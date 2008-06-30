@@ -55,7 +55,7 @@ const Node *Edge::getToNode() {
 }
 
 string Edge::toGraphviz() {
-	char source_gid[10], sink_gid[10];
+	char source_gid[11], sink_gid[11];
 	// Use pointer value as unique id
 	sprintf(source_gid, "%u", (unsigned int)from);
 	sprintf(sink_gid, "%u", (unsigned int)to);
