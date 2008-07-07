@@ -2,9 +2,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <set>
 
 #include "debian.h"
+#include "difference.h"
+#include "filter.h"
 #include "findcycles.h"
+#include "finddeps.h"
+#include "findreversedeps.h"
+#include "intersection.h"
+#include "union.h"
+#include "xor.h"
 
 extern "C"
 {
@@ -13,6 +21,7 @@ extern "C"
 #include <lualib.h>
 }
 
+static set<size_t> ObjectRegistry;
 static DebianGraph *g;
 
 /* Create/set an integer field in a Lua table */
@@ -65,13 +74,19 @@ Graph* popGraph(lua_State *L) {
 	if (lua_type(L, -1) == LUA_TTABLE) {
 		lua_pushstring(L, "__ptr");
 		lua_gettable(L, -2);
-		size_t gPtr = lua_tonumber(L, -1);
-		lua_pop(L, 1); // pop the Graph/table off the stack
-		return (Graph *)gPtr;
+		if (lua_type(L, -1) == LUA_TNUMBER) {
+			size_t gPtr = lua_tonumber(L, -1);
+			lua_pop(L, 2); // pop the Graph/table off the stack
+			if (ObjectRegistry.find(gPtr) != ObjectRegistry.end()) {
+				return (Graph *)gPtr;
+			}
+		}
+		else {
+			// TODO: Should be a Lua error
+			fprintf(stderr, "Invalid pointer value\n");
+		}
 	}
-	else {
-		return 0;
-	}
+	return 0;
 }
 
 void pushGraphAsTable(lua_State *L, Graph *g) {
@@ -87,9 +102,15 @@ void pushGraphAsTable(lua_State *L, Graph *g) {
  */
 int pushNodesAsArray(lua_State *L, Graph *g) {
 	int idx = 1;
+	lua_newtable(L);
 	for (GraphIterator i = g->begin(); i != g->end(); ++i) {
 		lua_pushnumber(L, idx);
-		lua_pushstring(L, (*i)->getProperty("Package").c_str());
+		if ((*i)->hasProperty("Package")) {
+			lua_pushstring(L, (*i)->getProperty("Package").c_str());
+		}
+		else {
+			lua_pushstring(L, "(none)");
+		}
 		lua_settable(L, -3);
 		++idx;
 	}
@@ -100,6 +121,10 @@ static int getNodes(lua_State *L) {
 	Graph *g = popGraph(L);
 	if (g == 0) {
 		// TODO: Return a Lua error
+		fprintf(stderr, "Could not get nodes from graph\n");
+		return 0;
+	} else if (ObjectRegistry.find((size_t)g) == ObjectRegistry.end()) {
+		fprintf(stderr, "Invalid pointer\n");
 		return 0;
 	}
 	pushNodesAsArray(L, g);
@@ -114,10 +139,149 @@ static int loadPackages(lua_State *L) {
 	} else {
 		pkgPath = lua_tostring(L, -1);
 		g = new DebianGraph(pkgPath);
+		ObjectRegistry.insert((size_t)g);
 		pushGraphAsTable(L, g);
 		lua_setglobal(L, "g");
 	}
 	return 0;
+}
+
+static int operDifference(lua_State *L) {
+	Graph *g2 = popGraph(L);
+	Graph *g1 = popGraph(L);
+	if (g1 == 0 || g2 == 0) {
+		return 0;
+	}
+	else {
+		Difference *d = new Difference(*g1, *g2);
+		Graph &result = d->execute();
+		pushGraphAsTable(L, &result);
+		ObjectRegistry.insert((size_t)d);
+		ObjectRegistry.insert((size_t)&result);
+		return 1;
+	}
+}
+
+static int operFindDeps(lua_State *L) {
+	// Second argument (node name)
+	if (lua_type(L, -1) != LUA_TSTRING) {
+		// TODO: This should be a Lua error
+		fprintf(stderr, "Arg #2: string expected\n");
+		return 0;
+	}
+	const char *nodeName = lua_tostring(L, -1);
+	lua_pop(L, 1);
+	// First argument (graph)
+	Graph *g1 = popGraph(L);
+	if (g1 == 0) {
+		// TODO: Give a Lua error
+		fprintf(stderr, "Arg #1: Not a graph or the graph does not exist\n");
+		return 0;
+	} else if (!g1->hasNode(nodeName)) {
+		fprintf(stderr, "Could not locate node `%s'\n", nodeName);
+		return 0;
+	}
+	Node *n = g1->findNode(string(nodeName));
+	FindDeps *fDeps = new FindDeps(*g1, n);
+	Graph &result = fDeps->execute();
+	ObjectRegistry.insert((size_t)fDeps);
+	ObjectRegistry.insert((size_t)&result);
+	pushGraphAsTable(L, &result);
+	return 1;
+}
+
+static int operFindReverseDeps(lua_State *L) {
+	// Second argument (node name)
+	if (lua_type(L, -1) != LUA_TSTRING) {
+		// TODO: This should be a Lua error
+		fprintf(stderr, "Arg #2: string expected\n");
+		return 0;
+	}
+	const char *nodeName = lua_tostring(L, -1);
+	lua_pop(L, 1);
+	// First argument (graph)
+	Graph *g1 = popGraph(L);
+	if (g1 == 0) {
+		// TODO: Give a Lua error
+		fprintf(stderr, "Arg #1: Not a graph or the graph does not exist\n");
+		return 0;
+	} else if (!g1->hasNode(nodeName)) {
+		fprintf(stderr, "Could not locate node `%s'\n", nodeName);
+		return 0;
+	}
+	Node *n = g1->findNode(string(nodeName));
+	FindReverseDeps *fRDeps = new FindReverseDeps(*g1, n);
+	Graph &result = fRDeps->execute();
+	ObjectRegistry.insert((size_t)fRDeps);
+	ObjectRegistry.insert((size_t)&result);
+	pushGraphAsTable(L, &result);
+	return 1;
+}
+
+static int operFilter(lua_State *L) {
+	Graph *g1 = popGraph(L);
+	if (g1 == 0) {
+		return 0;
+	}
+	else {
+		FilterProperties fProperties;
+		FilterRule fRuleSection = { string("Section"), EQUALS, string("games") };
+		fProperties.push_back(fRuleSection);
+		Filter *f = new Filter(*g1, fProperties, FILTER_AND);
+		Graph &result = f->execute();
+		pushGraphAsTable(L, &result);
+		ObjectRegistry.insert((size_t)f);
+		ObjectRegistry.insert((size_t)&result);
+		return 1;
+	}
+}
+
+static int operIntersection(lua_State *L) {
+	Graph *g2 = popGraph(L);
+	Graph *g1 = popGraph(L);
+	if (g1 == 0 || g2 == 0) {
+		return 0;
+	}
+	else {
+		Intersection *i = new Intersection(*g1, *g2);
+		Graph &result = i->execute();
+		pushGraphAsTable(L, &result);
+		ObjectRegistry.insert((size_t)i);
+		ObjectRegistry.insert((size_t)&result);
+		return 1;
+	}
+}
+
+static int operUnion(lua_State *L) {
+	Graph *g2 = popGraph(L);
+	Graph *g1 = popGraph(L);
+	if (g1 == 0 || g2 == 0) {
+		return 0;
+	}
+	else {
+		Union *u = new Union(*g1, *g2);
+		Graph &result = u->execute();
+		pushGraphAsTable(L, &result);
+		ObjectRegistry.insert((size_t)u);
+		ObjectRegistry.insert((size_t)&result);
+		return 1;
+	}
+}
+
+static int operXOR(lua_State *L) {
+	Graph *g2 = popGraph(L);
+	Graph *g1 = popGraph(L);
+	if (g1 == 0 || g2 == 0) {
+		return 0;
+	}
+	else {
+		XOR *x = new XOR(*g1, *g2);
+		Graph &result = x->execute();
+		pushGraphAsTable(L, &result);
+		ObjectRegistry.insert((size_t)x);
+		ObjectRegistry.insert((size_t)&result);
+		return 1;
+	}
 }
 
 static int operFindCycles(lua_State *L) {
@@ -150,6 +314,14 @@ static int operFindCycles(lua_State *L) {
 static const struct luaL_reg libdebgraph [] = {
 	{"LoadPackages", loadPackages},
 	{"GetNodes", getNodes},
+	{"Difference", operDifference},
+	{"FindDeps", operFindDeps},
+	{"FindRevDeps", operFindReverseDeps},
+	{"Filter", operFilter},
+	{"FindCycles", operFindCycles},
+	{"Intersection", operIntersection},
+	{"Union", operUnion},
+	{"XOR", operXOR},
 	{NULL, NULL} /* sentinel */
 };
 
@@ -157,7 +329,16 @@ extern "C"
 {
 int luaopen_libdebgraph(lua_State *L) {
 	luaL_openlib(L, "libdebgraph", libdebgraph, 0);
+	/* operators */
+	lua_register(L, "Difference", operDifference);
+	lua_register(L, "FindDeps", operFindDeps);
+	lua_register(L, "FindRevDeps", operFindReverseDeps);
+	lua_register(L, "Filter", operFilter);
 	lua_register(L, "FindCycles", operFindCycles);
+	lua_register(L, "Intersection", operIntersection);
+	lua_register(L, "Union", operUnion);
+	lua_register(L, "XOR", operXOR);
+	/* support routines */
 	lua_register(L, "GetNodes", getNodes);
 	lua_register(L, "LoadPackages", loadPackages);
 	lua_register(L, "stackDump", stackDump);
