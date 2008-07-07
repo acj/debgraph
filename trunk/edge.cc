@@ -57,8 +57,8 @@ const Node *Edge::getToNode() {
 string Edge::toGraphviz() {
 	char source_gid[11], sink_gid[11];
 	// Use pointer value as unique id
-	sprintf(source_gid, "%u", (unsigned int)from);
-	sprintf(sink_gid, "%u", (unsigned int)to);
+	sprintf(source_gid, "%u", (size_t)from);
+	sprintf(sink_gid, "%u", (size_t)to);
 	string output("\t node");
 	output += source_gid + string(" -> node") + sink_gid;
 	output += " [ label = \"" + this->getTypeString() + "\" ];\n";
