@@ -30,7 +30,11 @@ clean:
 
 distclean: clean
 	$(MAKE) -C tests clean
+	$(MAKE) -C lua clean
 
+lua: $(TARGET)
+	$(MAKE) -C lua
+	
 setup:
 	@echo "Running setup scripts..."
 	-for s in `find scripts -name "S*" | grep -v "\.svn" | sort`; do $$s; done
