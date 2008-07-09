@@ -24,3 +24,12 @@ void MemAcct::addReference(void *p) {
 void MemAcct::deleteReference(void *p) {
 	objectList.erase(p);
 }
+
+bool MemAcct::hasReference(void *p) {
+	if (objectList.find(p) != objectList.end()) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}

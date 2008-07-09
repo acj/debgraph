@@ -21,7 +21,7 @@ extern "C"
 #include <lualib.h>
 }
 
-static set<size_t> ObjectRegistry;
+static MemAcct *memAcct = MemAcct::instance();
 static DebianGraph *g;
 
 /* Create/set an integer field in a Lua table */
@@ -77,7 +77,7 @@ Graph* popGraph(lua_State *L) {
 		if (lua_type(L, -1) == LUA_TNUMBER) {
 			size_t gPtr = lua_tonumber(L, -1);
 			lua_pop(L, 2); // pop the Graph/table off the stack
-			if (ObjectRegistry.find(gPtr) != ObjectRegistry.end()) {
+			if (memAcct->hasReference((void *)gPtr)) {
 				return (Graph *)gPtr;
 			}
 		}
@@ -86,6 +86,8 @@ Graph* popGraph(lua_State *L) {
 			fprintf(stderr, "Invalid pointer value\n");
 		}
 	}
+	// TODO: Should be a Lua error
+	fprintf(stderr, "Argument is not a graph\n");
 	return 0;
 }
 
@@ -102,7 +104,6 @@ void pushGraphAsTable(lua_State *L, Graph *g) {
  */
 int pushNodesAsArray(lua_State *L, Graph *g) {
 	int idx = 1;
-	lua_newtable(L);
 	for (GraphIterator i = g->begin(); i != g->end(); ++i) {
 		lua_pushnumber(L, idx);
 		if ((*i)->hasProperty("Package")) {
@@ -123,10 +124,11 @@ static int getNodes(lua_State *L) {
 		// TODO: Return a Lua error
 		fprintf(stderr, "Could not get nodes from graph\n");
 		return 0;
-	} else if (ObjectRegistry.find((size_t)g) == ObjectRegistry.end()) {
+	} else if (!memAcct->hasReference(g)) {
 		fprintf(stderr, "Invalid pointer\n");
 		return 0;
 	}
+	lua_newtable(L);
 	pushNodesAsArray(L, g);
 	return 1;
 }
@@ -139,7 +141,7 @@ static int loadPackages(lua_State *L) {
 	} else {
 		pkgPath = lua_tostring(L, -1);
 		g = new DebianGraph(pkgPath);
-		ObjectRegistry.insert((size_t)g);
+		memAcct->addReference(g);
 		pushGraphAsTable(L, g);
 		lua_setglobal(L, "g");
 	}
@@ -156,10 +158,52 @@ static int operDifference(lua_State *L) {
 		Difference *d = new Difference(*g1, *g2);
 		Graph &result = d->execute();
 		pushGraphAsTable(L, &result);
-		ObjectRegistry.insert((size_t)d);
-		ObjectRegistry.insert((size_t)&result);
 		return 1;
 	}
+}
+
+static int operFilter(lua_State *L) {
+	Graph *g1 = popGraph(L);
+	if (g1 == 0) {
+		return 0;
+	}
+	else {
+		FilterProperties fProperties;
+		FilterRule fRuleSection = { string("Section"), EQUALS, string("games") };
+		fProperties.push_back(fRuleSection);
+		Filter f = Filter(*g1, fProperties, FILTER_AND);
+		Graph &result = f.execute();
+		pushGraphAsTable(L, &result);
+		return 1;
+	}
+}
+
+static int operFindCycles(lua_State *L) {
+	Graph *g = popGraph(L);
+	if (g == 0) {
+		return 0;
+	}
+	// TODO: Parameterize the starting node (passed from Lua)
+	FindCycles fc(*g, FindCycles::DEPENDS, string("Release:unstable"), false);
+	fc.execute();
+	vector<Graph*> &cycles = fc.getCycles();
+	size_t cycleCount = cycles.size();
+	// This operation can consume a large amount of stack space.  We
+	// need to ensure that there is a slot available for each cycle
+	// (stored as a table).  There must be three additional slots available
+	// to store the inner table and one key/value pair.
+	lua_checkstack(L, cycleCount + 3);
+	lua_newtable(L);
+	fprintf(stderr, "Found %i cycles", cycleCount);
+	for (size_t i=0; i<cycleCount; ++i) {
+		lua_newtable(L);
+		lua_pushnumber(L, i);
+		lua_pushvalue(L, -2);
+		lua_settable(L, -4);
+		pushNodesAsArray(L, cycles[i]);
+		lua_pop(L, 1);
+	}
+	return 1;
 }
 
 static int operFindDeps(lua_State *L) {
@@ -184,8 +228,6 @@ static int operFindDeps(lua_State *L) {
 	Node *n = g1->findNode(string(nodeName));
 	FindDeps *fDeps = new FindDeps(*g1, n);
 	Graph &result = fDeps->execute();
-	ObjectRegistry.insert((size_t)fDeps);
-	ObjectRegistry.insert((size_t)&result);
 	pushGraphAsTable(L, &result);
 	return 1;
 }
@@ -212,28 +254,8 @@ static int operFindReverseDeps(lua_State *L) {
 	Node *n = g1->findNode(string(nodeName));
 	FindReverseDeps *fRDeps = new FindReverseDeps(*g1, n);
 	Graph &result = fRDeps->execute();
-	ObjectRegistry.insert((size_t)fRDeps);
-	ObjectRegistry.insert((size_t)&result);
 	pushGraphAsTable(L, &result);
 	return 1;
-}
-
-static int operFilter(lua_State *L) {
-	Graph *g1 = popGraph(L);
-	if (g1 == 0) {
-		return 0;
-	}
-	else {
-		FilterProperties fProperties;
-		FilterRule fRuleSection = { string("Section"), EQUALS, string("games") };
-		fProperties.push_back(fRuleSection);
-		Filter *f = new Filter(*g1, fProperties, FILTER_AND);
-		Graph &result = f->execute();
-		pushGraphAsTable(L, &result);
-		ObjectRegistry.insert((size_t)f);
-		ObjectRegistry.insert((size_t)&result);
-		return 1;
-	}
 }
 
 static int operIntersection(lua_State *L) {
@@ -246,8 +268,6 @@ static int operIntersection(lua_State *L) {
 		Intersection *i = new Intersection(*g1, *g2);
 		Graph &result = i->execute();
 		pushGraphAsTable(L, &result);
-		ObjectRegistry.insert((size_t)i);
-		ObjectRegistry.insert((size_t)&result);
 		return 1;
 	}
 }
@@ -262,8 +282,6 @@ static int operUnion(lua_State *L) {
 		Union *u = new Union(*g1, *g2);
 		Graph &result = u->execute();
 		pushGraphAsTable(L, &result);
-		ObjectRegistry.insert((size_t)u);
-		ObjectRegistry.insert((size_t)&result);
 		return 1;
 	}
 }
@@ -278,37 +296,8 @@ static int operXOR(lua_State *L) {
 		XOR *x = new XOR(*g1, *g2);
 		Graph &result = x->execute();
 		pushGraphAsTable(L, &result);
-		ObjectRegistry.insert((size_t)x);
-		ObjectRegistry.insert((size_t)&result);
 		return 1;
 	}
-}
-
-static int operFindCycles(lua_State *L) {
-	Graph *g = popGraph(L);
-	if (g == 0) {
-		return 0;
-	}
-	// TODO: Parameterize the starting node (passed from Lua)
-	FindCycles fc(*g, FindCycles::DEPENDS, string("Release:unstable"), false);
-	fc.execute();
-	size_t cycleCount = fc.getCycles().size();
-	// This operation can consume a large amount of stack space.  We
-	// need to ensure that there is a slot available for each cycle
-	// (stored as a table).  There must be three additional slots available
-	// to store the inner table and one key/value pair.
-	lua_checkstack(L, cycleCount + 3);
-	lua_newtable(L);
-	for (size_t i=0; i<cycleCount; ++i) {
-		lua_newtable(L);
-		lua_pushnumber(L, i);
-		lua_pushvalue(L, -2);
-		lua_settable(L, -4);
-		Graph &gCycle = fc.getCycles()[i];
-		pushNodesAsArray(L, &gCycle);
-		lua_pop(L, 1);
-	}
-	return 1;
 }
 
 static const struct luaL_reg libdebgraph [] = {

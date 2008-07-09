@@ -8,6 +8,8 @@ CXX=g++
 # upstream objects.
 DG_OBJECTS=$(patsubst %.o,$(TOPDIR)%.o,$(subst main.o,,$(OBJECTS)))
 
+all: libdebgraph.so debgraph_cli
+
 debgraph_cli: debgraph_cli.o libdebgraph.o libdebgraph.so
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(INCLUDES) $^ $(DG_OBJECTS) -o $@
 
@@ -19,4 +21,5 @@ libdebgraph.so: libdebgraph.o
 
 clean:
 	rm -f *.o
-	rm -f $(TARGET)
+	rm -f debgraph_cli
+	rm -f libdebgraph.so

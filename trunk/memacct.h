@@ -15,6 +15,7 @@ class MemAcct {
 		static MemAcct* instance();
 		void addReference(void*);
 		void deleteReference(void*);
+		bool hasReference(void*);
 };
 
 
