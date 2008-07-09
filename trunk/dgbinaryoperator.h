@@ -12,11 +12,10 @@ class DGBinaryOperator : public DGOperator {
 	protected:
 		Graph &l_operand;
 		Graph &r_operand;
-		Graph result;
 		DGBinaryOperator(Graph &, Graph &);
 	public:
 		virtual ~DGBinaryOperator();
-		virtual Graph& execute();
+		virtual Graph& execute() = 0;
 		void copyConsistentEdges(Graph&, Graph&, Graph&);
 };
 

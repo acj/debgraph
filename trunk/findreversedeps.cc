@@ -8,6 +8,8 @@ FindReverseDeps::~FindReverseDeps() {
 }
 
 Graph& FindReverseDeps::execute() {
+	Graph *result = new Graph();
+	registerObject(result);
 	stack<Node*> depStack;
 	Node *node;
 	if (nodeList.size() > 0) {
@@ -17,16 +19,16 @@ Graph& FindReverseDeps::execute() {
 		}
 	}
 	else {
-		return result;
+		return *result;
 	}
 	while (!depStack.empty()) {
 		node = depStack.top();
 		depStack.pop();
 		// Break cycles
-		if (result.hasNode(node->getId())) {
+		if (result->hasNode(node->getId())) {
 			continue;
 		}
-		result.addNode(node, Graph::FAIL_DUP);
+		result->addNode(node, Graph::FAIL_DUP);
 		EdgeSet& inEdges = operand.getInEdges(node);
 		for (EdgeSetIterator edgeIter = inEdges.begin();
 				edgeIter != inEdges.end(); ++edgeIter) {
@@ -39,6 +41,6 @@ Graph& FindReverseDeps::execute() {
 			}
 		}
 	}
-	copyConsistentEdges(operand, result);
-	return result;
+	copyConsistentEdges(operand, *result);
+	return *result;
 }

@@ -11,7 +11,7 @@ Graph& XOR::execute() {
 	Difference *d1 = new Difference(l_operand, r_operand);
 	Difference *d2 = new Difference(r_operand, l_operand);
 	Union *u = new Union(d1->execute(), d2->execute());
-	result = u->execute();
+	Graph &result = u->execute();
 	copyConsistentEdges(l_operand, r_operand, result);
 	return result;
 }

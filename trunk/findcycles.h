@@ -23,7 +23,7 @@ class FindCycles: public DGUnaryOperator {
 			int mark;
 		};
 		set<Entity::EntityType> allowedEntities;
-		vector<Graph> cycles;
+		vector<Graph*> cycles;
 		bool discoverAllNodes;
 		string startNodeId;
 		map<string,NodeState*> traversalData;
@@ -33,7 +33,7 @@ class FindCycles: public DGUnaryOperator {
 	protected:
 		int tarjan(Graph&, Node*, list<Node*>*, int*);
 	public:
-		vector<Graph>& getCycles();
+		vector<Graph*>& getCycles();
 		Graph& execute();
 		FindCycles(Graph &g, set<Entity::EntityType> eTypes, string startNode, 
 				bool discoverAllNodesFlag=false) : DGUnaryOperator(g)

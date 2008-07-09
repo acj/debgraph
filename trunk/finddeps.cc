@@ -7,6 +7,8 @@ FindDeps::~FindDeps() {
 }
 
 Graph& FindDeps::execute() {
+	Graph *result = new Graph();
+	registerObject(result);
 	stack<Node*> depStack;
 	Node *node;
 	if (nodeList.size() > 0) {
@@ -22,10 +24,10 @@ Graph& FindDeps::execute() {
 		node = depStack.top();
 		depStack.pop();
 		// Break cycles
-		if (result.hasNode(node->getId())) {
+		if (result->hasNode(node->getId())) {
 			continue;
 		}
-		result.addNode(node, Graph::FAIL_DUP);
+		result->addNode(node, Graph::FAIL_DUP);
 		EdgeSet &edgeSet = operand.getOutEdges(node);
 		for (EdgeSetIterator edgeIter = edgeSet.begin();
 				edgeIter != edgeSet.end(); ++edgeIter) {
@@ -38,6 +40,6 @@ Graph& FindDeps::execute() {
 			}
 		}
 	}
-	copyConsistentEdges(operand, result);
-	return result;
+	copyConsistentEdges(operand, *result);
+	return *result;
 }

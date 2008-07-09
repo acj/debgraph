@@ -8,17 +8,19 @@ Union::~Union() {
 Graph& Union::execute() {
 	// Begin with a copy of the result graph
 	Graph *smaller;
+	Graph *result;
 	if (l_operand.size() > r_operand.size()) {
-		result = l_operand;
+		result = new Graph(l_operand);
 		smaller = &r_operand;
 	}
 	else {
-		result = r_operand;
+		result = new Graph(r_operand);
 		smaller = &l_operand;
 	}
+	registerObject(result);
 	for (GraphIterator i = smaller->begin(); i != smaller->end(); ++i) {
-		result.addNode(*i, Graph::DISCARD_DUP);
+		result->addNode(*i, Graph::DISCARD_DUP);
 	}
-	copyConsistentEdges(l_operand, r_operand, result);
-	return result;
+	copyConsistentEdges(l_operand, r_operand, *result);
+	return *result;
 }

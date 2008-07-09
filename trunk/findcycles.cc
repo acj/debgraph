@@ -72,11 +72,12 @@ int FindCycles::tarjan(Graph &g, Node *n, list<Node*> *l, int *N) {
 			tl.push_back(cn);
 		} while (cn != n);
 		if (tl.size() > 1) {
-			Graph newCycle;
+			Graph *newCycle = new Graph();
+			registerObject(newCycle);
 			for (list<Node*>::const_iterator i = tl.begin(); i != tl.end(); i++) {
-					newCycle.addNode(*i);
+					newCycle->addNode(*i);
 			}
-			copyConsistentEdges(operand, newCycle);
+			copyConsistentEdges(operand, *newCycle);
 			cycles.push_back(newCycle);
 		}
 	}
@@ -100,7 +101,7 @@ void FindCycles::markRecursive(Node *n, int depth, int mark) {
 	}
 }
 
-vector<Graph>& FindCycles::getCycles() {
+vector<Graph*>& FindCycles::getCycles() {
 	return cycles;
 }
 

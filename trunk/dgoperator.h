@@ -2,6 +2,7 @@
 #define DGOPERATOR_H
 
 #include "graph.h"
+#include "memacct.h"
 
 using namespace std;
 
@@ -13,6 +14,7 @@ class DGOperator {
 		virtual ~DGOperator();
 		virtual Graph& execute() = 0;
 		void mergePackageVersions(Graph&);
+		void registerObject(void*);
 };
 
 #endif /* DGOPERATOR_H */

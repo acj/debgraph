@@ -35,3 +35,8 @@ void DGOperator::mergePackageVersions(Graph &g) {
 		}
 	}
 }
+
+void DGOperator::registerObject(void *p) {
+	MemAcct *ma = MemAcct::instance();
+	ma->addReference(p);
+}

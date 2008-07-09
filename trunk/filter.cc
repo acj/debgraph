@@ -15,6 +15,8 @@ void Filter::setFilterProperties(FilterProperties filterProperties) {
 }
 
 Graph& Filter::execute() {
+	Graph *result = new Graph();
+	registerObject(result);
 	FilterPropertiesIterator iter;
 	bool node_matches = true;
 	for (GraphIterator graph_iter = operand.begin(); 
@@ -128,9 +130,9 @@ Graph& Filter::execute() {
 			}
 		}
 		if (node_matches) {
-			result.addNode(*graph_iter, Graph::FAIL_DUP);
+			result->addNode(*graph_iter, Graph::FAIL_DUP);
 		}
 	}
-	copyConsistentEdges(operand, result);
-	return result;
+	copyConsistentEdges(operand, *result);
+	return *result;
 }

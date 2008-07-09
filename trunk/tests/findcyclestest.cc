@@ -70,7 +70,7 @@ bool FindCyclesTest::run(Graph &g) {
 	for (size_t i = 0; i<cycleCount; ++i) {
 		sprintf(cycleName, "out/findcycles-%d.dot", i);
 		ofstream dotfile(cycleName);
-		dotfile << fc.getCycles()[i].toGraphviz();
+		dotfile << fc.getCycles()[i]->toGraphviz();
 		dotfile.close();
 	}
 	if (fc.getCycles().size() == 2) {

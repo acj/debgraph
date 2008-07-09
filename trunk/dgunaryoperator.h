@@ -10,7 +10,6 @@ class DGUnaryOperator : public DGOperator {
 	private:
 	protected:
 		Graph &operand;
-		Graph result;
 		DGUnaryOperator(Graph &);
 	public:
 		virtual ~DGUnaryOperator();

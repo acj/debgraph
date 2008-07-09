@@ -8,11 +8,6 @@ DGBinaryOperator::DGBinaryOperator(Graph &g1, Graph &g2)
 DGBinaryOperator::~DGBinaryOperator() {
 }
 
-Graph& DGBinaryOperator::execute() {
-	result = Graph();
-	return result;
-}
-
 void DGBinaryOperator::copyConsistentEdges(Graph &source1, Graph &source2,
 		Graph &sink) {
 	Node *n;

@@ -9,7 +9,7 @@ class MemAcct {
 		static MemAcct *ma;
 		MemAcct();
 		~MemAcct();
-		set<void*> objectList;
+		multiset<void*> objectList;
 	protected:
 	public:
 		static MemAcct* instance();
