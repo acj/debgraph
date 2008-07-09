@@ -82,12 +82,11 @@ Graph* popGraph(lua_State *L) {
 			}
 		}
 		else {
-			// TODO: Should be a Lua error
-			fprintf(stderr, "Invalid pointer value\n");
+			lua_pushstring(L, "Invalid pointer value");
+			lua_error(L);
 		}
 	}
-	// TODO: Should be a Lua error
-	fprintf(stderr, "Argument is not a graph\n");
+	// The object on top of the stack is not a Graph
 	return 0;
 }
 
@@ -121,12 +120,11 @@ int pushNodesAsArray(lua_State *L, Graph *g) {
 static int getNodes(lua_State *L) {
 	Graph *g = popGraph(L);
 	if (g == 0) {
-		// TODO: Return a Lua error
-		fprintf(stderr, "Could not get nodes from graph\n");
-		return 0;
+		lua_pushstring(L, "Could not get nodes from graph");
+		lua_error(L);
 	} else if (!memAcct->hasReference(g)) {
-		fprintf(stderr, "Invalid pointer\n");
-		return 0;
+		lua_pushstring(L, "Invalid pointer");
+		lua_error(L);
 	}
 	lua_newtable(L);
 	pushNodesAsArray(L, g);
@@ -136,8 +134,8 @@ static int getNodes(lua_State *L) {
 static int loadPackages(lua_State *L) {
 	const char *pkgPath;
 	if (lua_type(L, -1) != LUA_TSTRING) {
-		// TODO: This should be a Lua error
-		fprintf(stderr, "Path must be a string\n");
+		lua_pushstring(L, "Path must be a string");
+		lua_error(L);
 	} else {
 		pkgPath = lua_tostring(L, -1);
 		g = new DebianGraph(pkgPath);
@@ -194,7 +192,6 @@ static int operFindCycles(lua_State *L) {
 	// to store the inner table and one key/value pair.
 	lua_checkstack(L, cycleCount + 3);
 	lua_newtable(L);
-	fprintf(stderr, "Found %i cycles", cycleCount);
 	for (size_t i=0; i<cycleCount; ++i) {
 		lua_newtable(L);
 		lua_pushnumber(L, i);
@@ -209,20 +206,20 @@ static int operFindCycles(lua_State *L) {
 static int operFindDeps(lua_State *L) {
 	// Second argument (node name)
 	if (lua_type(L, -1) != LUA_TSTRING) {
-		// TODO: This should be a Lua error
-		fprintf(stderr, "Arg #2: string expected\n");
-		return 0;
+		lua_pushstring(L, "Arg #2: string expected");
+		lua_error(L);
 	}
 	const char *nodeName = lua_tostring(L, -1);
 	lua_pop(L, 1);
 	// First argument (graph)
 	Graph *g1 = popGraph(L);
 	if (g1 == 0) {
-		// TODO: Give a Lua error
-		fprintf(stderr, "Arg #1: Not a graph or the graph does not exist\n");
-		return 0;
+		lua_pushstring(L, "Arg #1: Not a graph or the graph does not exist");
+		lua_error(L);
 	} else if (!g1->hasNode(nodeName)) {
-		fprintf(stderr, "Could not locate node `%s'\n", nodeName);
+		string err("Could not locate node `" + string(nodeName) + "'");
+		lua_pushstring(L, err.c_str());
+		lua_error(L);
 		return 0;
 	}
 	Node *n = g1->findNode(string(nodeName));
@@ -235,21 +232,20 @@ static int operFindDeps(lua_State *L) {
 static int operFindReverseDeps(lua_State *L) {
 	// Second argument (node name)
 	if (lua_type(L, -1) != LUA_TSTRING) {
-		// TODO: This should be a Lua error
-		fprintf(stderr, "Arg #2: string expected\n");
-		return 0;
+		lua_pushstring(L, "Arg #2: Not a string");
+		lua_error(L);
 	}
 	const char *nodeName = lua_tostring(L, -1);
 	lua_pop(L, 1);
 	// First argument (graph)
 	Graph *g1 = popGraph(L);
 	if (g1 == 0) {
-		// TODO: Give a Lua error
-		fprintf(stderr, "Arg #1: Not a graph or the graph does not exist\n");
-		return 0;
+		lua_pushstring(L, "Arg #1: Not a graph or the graph does not exist");
+		lua_error(L);
 	} else if (!g1->hasNode(nodeName)) {
-		fprintf(stderr, "Could not locate node `%s'\n", nodeName);
-		return 0;
+		string err("Could not locate node `" + string(nodeName) + "'");
+		lua_pushstring(L, err.c_str());
+		lua_error(L);
 	}
 	Node *n = g1->findNode(string(nodeName));
 	FindReverseDeps *fRDeps = new FindReverseDeps(*g1, n);
