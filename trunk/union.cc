@@ -17,7 +17,7 @@ Graph& Union::execute() {
 		smaller = &l_operand;
 	}
 	for (GraphIterator i = smaller->begin(); i != smaller->end(); ++i) {
-		result.addNode(new Node(**i), Graph::DISCARD_DUP);
+		result.addNode(*i, Graph::DISCARD_DUP);
 	}
 	copyConsistentEdges(l_operand, r_operand, result);
 	return result;

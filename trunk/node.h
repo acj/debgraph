@@ -8,18 +8,12 @@
 
 using namespace std;
 
-typedef set<Edge*> EdgeSet;
-typedef set<Edge*>::iterator EdgeSetIterator;
-typedef set<Edge*>::const_iterator EdgeSetConstIterator;
-
 class Graph;
 
 class Node : public Entity {
 	private:
 		string id;
 		Graph *parentGraph;
-		EdgeSet outEdges;
-		EdgeSet inEdges;
 	public:
 		Node();
 		Node(Node&);
@@ -30,11 +24,6 @@ class Node : public Entity {
 		Graph* getParentGraph() const;
 		void setParentGraph(Graph*);
 		void setId(string &nid);
-		bool hasEdgeFrom(Node*) const;
-		bool hasEdgeTo(Node*) const;
-		EdgeSet& getInEdges();
-		EdgeSet& getOutEdges();
-		string toGraphviz();
 };
 
 #endif /* NODE_H */

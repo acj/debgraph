@@ -11,6 +11,7 @@ class DebianGraph : public Graph {
 	public:
 		DebianGraph(string cachedir);
 		~DebianGraph();
+		void freeNodes();
 };
 
 #endif /* DEBIAN_H */

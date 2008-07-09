@@ -13,12 +13,12 @@ class Graph;
 
 class GraphIterator : public std::iterator <std::input_iterator_tag, Node> {
 	private:
-		//GraphIndexIteratorT graph_iter;
+		//NodeIndexIteratorT graph_iter;
 		Graph* graph;
-		GraphIndexConstIteratorT graph_iter;
+		NodeIndexConstIteratorT graph_iter;
 	protected:
 		inline void setGraph(Graph *g) { graph = g; }
-		inline void setIndexIterator(GraphIndexConstIteratorT i) { graph_iter = i; }
+		inline void setIndexIterator(NodeIndexConstIteratorT i) { graph_iter = i; }
 	public:
 		friend class Graph;
 		GraphIterator();

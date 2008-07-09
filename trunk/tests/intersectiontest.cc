@@ -7,7 +7,6 @@
 
 bool IntersectionTest::run(Graph &g) {
 	Graph g1, g2;
-	Edge *e;
 
 	// g1
 	Node *releaseNode = new Node("Release:semistable");
@@ -20,9 +19,9 @@ bool IntersectionTest::run(Graph &g) {
 	componentNode->setType(Entity::COMPONENTNAME);
 	componentNode = g1.addNode(componentNode, Graph::FAIL_DUP);
 	// g1 edges
-	e = Edge::createEdge(releaseNode, componentNode, 
+	g1.createEdge(releaseNode, componentNode, 
 		Entity::CONTAINS, Edge::IGNORE_DUP);
-	e = Edge::createEdge(componentNameNode, componentNode,
+	g1.createEdge(componentNameNode, componentNode,
 		Entity::HAS_INSTANCE, Edge::IGNORE_DUP);
 	// g2
 	Node *releaseNode_g2 = new Node("Release:semistable");

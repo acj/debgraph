@@ -45,23 +45,24 @@ bool FindCyclesTest::run(Graph &g) {
 	g1.addNode(pollen, Graph::FAIL_DUP);
 
 	// Set up edges
-	Edge::createEdge(chicken, egg, Entity::DEPENDS, Edge::IGNORE_DUP);
-	Edge::createEdge(egg, chicken, Entity::DEPENDS, Edge::IGNORE_DUP);
-	Edge::createEdge(chicken, nutrients, Entity::DEPENDS, Edge::IGNORE_DUP);
-	Edge::createEdge(egg, nutrients, Entity::DEPENDS, Edge::IGNORE_DUP);
-	Edge::createEdge(nutrients, soil, Entity::DEPENDS, Edge::IGNORE_DUP);
-	Edge::createEdge(soil, chicken, Entity::DEPENDS, Edge::IGNORE_DUP);
-	Edge::createEdge(pollen, plant, Entity::DEPENDS, Edge::IGNORE_DUP);
-	Edge::createEdge(plant, bee, Entity::DEPENDS, Edge::IGNORE_DUP);
-	Edge::createEdge(bee, pollen, Entity::DEPENDS, Edge::IGNORE_DUP);
-	Edge::createEdge(plant, soil2, Entity::DEPENDS, Edge::IGNORE_DUP);
-	Edge::createEdge(soil2, plant, Entity::DEPENDS, Edge::IGNORE_DUP);
+	g1.createEdge(chicken, egg, Entity::DEPENDS, Edge::IGNORE_DUP);
+	g1.createEdge(egg, chicken, Entity::DEPENDS, Edge::IGNORE_DUP);
+	g1.createEdge(chicken, nutrients, Entity::DEPENDS, Edge::IGNORE_DUP);
+	g1.createEdge(egg, nutrients, Entity::DEPENDS, Edge::IGNORE_DUP);
+	g1.createEdge(nutrients, soil, Entity::DEPENDS, Edge::IGNORE_DUP);
+	g1.createEdge(soil, chicken, Entity::DEPENDS, Edge::IGNORE_DUP);
+	g1.createEdge(pollen, plant, Entity::DEPENDS, Edge::IGNORE_DUP);
+	g1.createEdge(plant, bee, Entity::DEPENDS, Edge::IGNORE_DUP);
+	g1.createEdge(bee, pollen, Entity::DEPENDS, Edge::IGNORE_DUP);
+	g1.createEdge(plant, soil2, Entity::DEPENDS, Edge::IGNORE_DUP);
+	g1.createEdge(soil2, plant, Entity::DEPENDS, Edge::IGNORE_DUP);
 
 	ofstream lifecycles("out/findcycles-full.dot");
 	lifecycles << g1.toGraphviz();
 	lifecycles.close();
 
-	FindCycles fc(g1, FindCycles::DEPENDS, "Soil");
+	// TODO: Need to test other constructors
+	FindCycles fc(g1, FindCycles::DEPENDS, "Soil", true);
 	Graph result = fc.execute();
 	size_t cycleCount = fc.getCycles().size();
 	cout << "\n\tFound " << cycleCount << " cycles" << endl;

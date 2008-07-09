@@ -6,8 +6,7 @@
 
 bool NodeTest::run(Graph &g) {
 	Node *n = new Node("foo");
-	if ( !(n->getId() == "foo"
-			&& n->getParentGraph() == 0) ) {
+	if ( !(n->getId() == "foo") ) {
 		cout << "\tID or parent graph failed to initialize" << endl;
 		return false;
 	}
@@ -17,16 +16,10 @@ bool NodeTest::run(Graph &g) {
 		cout << "\tsetType()/getType()/getTypeString() failed" << endl;
 		return false;
 	}
-	n->setParentGraph(&g);
-	if ( !(n->getParentGraph() == &g) ) {
-		cout << "\tsetParentGraph()/getParentGraph() failed" << endl;
-		return false;
-	}
 
 	Node *nCopy = new Node(*n);
 	if ( !(nCopy->getType() == Entity::BINARYNAME
-			&& nCopy->getTypeString() == "BINARYNAME"
-			&& nCopy->getParentGraph() == &g) ) {
+			&& nCopy->getTypeString() == "BINARYNAME") ) {
 		cout << "\tCopy constructor failed" << endl;
 		return false;
 	}

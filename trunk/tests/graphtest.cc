@@ -23,7 +23,6 @@ bool GraphTest::run(Graph &g) {
 
 	// Test the copy constructor
 	Graph g1;
-	Edge *e;
 
 	releaseNode = new Node("Release:semistable");
 	releaseNode->setType(Entity::RELEASE);
@@ -34,15 +33,20 @@ bool GraphTest::run(Graph &g) {
 	Node *componentNode = new Node("Component:semistable:main");
 	componentNode->setType(Entity::COMPONENTNAME);
 	componentNode = g1.addNode(componentNode, Graph::DISCARD_DUP);
-	e = Edge::createEdge(releaseNode, componentNode, 
+	g1.createEdge(releaseNode, componentNode, 
 		Entity::CONTAINS, Edge::IGNORE_DUP);
-	e = Edge::createEdge(componentNameNode, componentNode,
+	g1.createEdge(componentNameNode, componentNode,
 		Entity::HAS_INSTANCE, Edge::IGNORE_DUP);
 	ofstream dotfile;
 	dotfile.open("out/graphtest-orig.dot");
 	dotfile << g1.toGraphviz();
 	dotfile.close();
 
+	if ( !(g1.hasEdge(releaseNode, componentNode, Entity::CONTAINS)
+			&& g1.hasEdge(componentNameNode, componentNode, Entity::HAS_INSTANCE)) ) {
+		cout << "\n\tMissing at least one edge" << endl;
+		return false;
+	}
 	Graph g1_copy(g1);
 	if ( !(g1_copy.hasNode("Release:semistable")
 		&& g1_copy.findNode("Release:semistable") != NULL
@@ -53,15 +57,6 @@ bool GraphTest::run(Graph &g) {
 		&& g1_copy.size() == 3) ) {
 		cout << "\n\tFailed to copy Graph object." << endl;
 		return false;
-	}
-	// Verify that the copied nodes are not pointers to an old node
-	Node *n;
-	for (GraphIterator iter = g1.begin(); iter != g1.end(); ++iter) {
-		n = g1_copy.findNode((*iter)->getId());
-		if (*iter == n) {
-			cout << "New Graph contains pointer to Node in old Graph" << endl;
-			return false;
-		}
 	}
 	dotfile.open("out/graphtest-copy.dot");
 	dotfile << g1_copy.toGraphviz();

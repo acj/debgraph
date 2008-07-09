@@ -1,5 +1,6 @@
 #include <stack>
 #include "findreversedeps.h"
+#include <iostream> // XXX
 
 // NB: Constructor defined in header file.
 
@@ -16,7 +17,7 @@ Graph& FindReverseDeps::execute() {
 		}
 	}
 	else {
-		depStack.push(singleNode);
+		return result;
 	}
 	while (!depStack.empty()) {
 		node = depStack.top();
@@ -25,9 +26,10 @@ Graph& FindReverseDeps::execute() {
 		if (result.hasNode(node->getId())) {
 			continue;
 		}
-		result.addNode(new Node(*node), Graph::FAIL_DUP);
-		for (EdgeSetConstIterator edgeIter = node->getInEdges().begin();
-				edgeIter != node->getInEdges().end(); ++edgeIter) {
+		result.addNode(node, Graph::FAIL_DUP);
+		EdgeSet& inEdges = operand.getInEdges(node);
+		for (EdgeSetIterator edgeIter = inEdges.begin();
+				edgeIter != inEdges.end(); ++edgeIter) {
 			if ((*edgeIter)->getType() == Entity::DEPENDS
 					|| (*edgeIter)->getType() == Entity::PRE_DEPENDS
 					|| (*edgeIter)->getType() == Entity::HAS_VERSION

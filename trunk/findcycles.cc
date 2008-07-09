@@ -12,11 +12,6 @@ FindCycles::~FindCycles() {
 	// XXX Deallocate memory for traversal data
 }
 
-bool NodeNameComparator(const Node *a, const Node *b) {
-	return (const_cast<Node*>(a))->getProperty("Package") < 
-			(const_cast<Node*>(b))->getProperty("Package");
-}
-
 static inline int min(int a, int b) {
 	return a < b ? a : b;
 }
@@ -27,18 +22,6 @@ string hex(void *p) {
 	sprintf(buf, "X%08X", (unsigned int)p);
 	s = buf;
 	return s;
-}
-
-string sourcePackage(Node *p) {
-	set<Edge*> e = p->getOutEdges();
-	set<Edge*>::iterator ei;
-	for (ei = e.begin(); ei != e.end(); ei++) {
-		Node *on = const_cast<Node*>((*ei)->getToNode());
-		if (on->getType() == Entity::SOURCE) {
-			return on->getProperty("Package");
-		}
-	}
-	return "";
 }
 
 // Implementation of Tarjan's algorithm for finding strongly connected
@@ -60,9 +43,9 @@ int FindCycles::tarjan(Graph &g, Node *n, list<Node*> *l, int *N) {
 	string nodePackName = n->getProperty("Package");
 	/* recursion */
 	NodeState *onState;
-	set<Edge*> s = n->getOutEdges();
-	set<Edge*>::const_iterator i;
-	for (i = s.begin(); i != s.end(); i++) {
+	EdgeSet &edgeSet = g.getOutEdges(n);
+	EdgeSetIterator i;
+	for (i = edgeSet.begin(); i != edgeSet.end(); i++) {
 		/* examine this link */
 		if (allowedEntities.find((*i)->getType()) != allowedEntities.end()) {
 			Node *on = const_cast<Node*>((*i)->getToNode());
@@ -91,7 +74,7 @@ int FindCycles::tarjan(Graph &g, Node *n, list<Node*> *l, int *N) {
 		if (tl.size() > 1) {
 			Graph newCycle;
 			for (list<Node*>::const_iterator i = tl.begin(); i != tl.end(); i++) {
-					newCycle.addNode(new Node(**i));
+					newCycle.addNode(*i);
 			}
 			copyConsistentEdges(operand, newCycle);
 			cycles.push_back(newCycle);
@@ -109,8 +92,8 @@ void FindCycles::markRecursive(Node *n, int depth, int mark) {
 	}
 	NodeState *nState = traversalData[n->getId()];
 	nState->mark = mark;
-	set<Edge*> s = n->getOutEdges();
-	set<Edge*>::iterator i;
+	EdgeSet &s = operand.getOutEdges(n);
+	EdgeSetIterator i;
 	for (i = s.begin(); i != s.end(); i++) {
 		Node *on = const_cast<Node*>((*i)->getToNode());
 		markRecursive(on, depth, mark);
@@ -122,12 +105,12 @@ vector<Graph>& FindCycles::getCycles() {
 }
 
 Graph& FindCycles::execute() {
-	Node *startNode = operand.findNode(startNodeId);
-	if (startNode == NULL) {
-		cout << "\n\tError: Starting node \"" << startNodeId 
+	if (!operand.hasNode(this->startNodeId)) {
+		cout << "\n\tError: Starting node \"" << this->startNodeId 
 			 << "\" not found in graph" << endl;
 	}
 	else {
+		Node *startNode = operand.findNode(this->startNodeId);
 		// Mark as unhandled in our release.
 		markRecursive(startNode, 4, 0);
 		int N = 0;

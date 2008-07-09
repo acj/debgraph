@@ -6,7 +6,6 @@
 
 bool UnionTest::run(Graph &g) {
 	Graph g1, g2;
-	Edge *e;
 
 	// g1
 	Node *releaseNode = new Node("Release:semistable");
@@ -23,9 +22,9 @@ bool UnionTest::run(Graph &g) {
 	componentNode_g2->setType(Entity::COMPONENTNAME);
 	componentNode_g2 = g2.addNode(componentNode_g2, Graph::DISCARD_DUP);
 	// edges
-	e = Edge::createEdge(releaseNode, componentNode, 
+	g1.createEdge(releaseNode, componentNode, 
 		Entity::CONTAINS, Edge::IGNORE_DUP);
-	e = Edge::createEdge(componentNameNode, componentNode,
+	g1.createEdge(componentNameNode, componentNode,
 		Entity::HAS_INSTANCE, Edge::IGNORE_DUP);
 	Union u = Union(g1, g2);
 	Graph result = u.execute();	

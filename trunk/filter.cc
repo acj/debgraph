@@ -128,7 +128,7 @@ Graph& Filter::execute() {
 			}
 		}
 		if (node_matches) {
-			result.addNode(new Node(**graph_iter), Graph::FAIL_DUP);
+			result.addNode(*graph_iter, Graph::FAIL_DUP);
 		}
 	}
 	copyConsistentEdges(operand, result);

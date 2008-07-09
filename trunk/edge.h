@@ -13,14 +13,13 @@ class Edge : public Entity {
 	protected:
 		Node *from;
 		Node *to;
-		Edge();
 	public:
 		~Edge();
-		static Edge *createEdge(Node *fromNode, Node *toNode, 
-			Entity::EntityType type, CreateFlag flag = NOCHECK_DUP);
-		const Node *getFromNode();
-		const Node *getToNode();
-		string toGraphviz();
+		Edge();
+		const Node *getFromNode() const;
+		const Node *getToNode() const;
+		void setFromNode(Node*);
+		void setToNode(Node*);
 };
 		
 #endif /* EDGE_H */

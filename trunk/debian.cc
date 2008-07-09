@@ -83,7 +83,7 @@ vector<string> breakPath(string path) {
 	}
 	result.push_back(path.substr(0, pos));
 	return result;
-};
+}
 
 void readFile(string &filename, Graph *g) {
 	ifstream f;
@@ -125,9 +125,9 @@ void readFile(string &filename, Graph *g) {
 	Node *componentNode = new Node("Component:"+release+":"+component);
 	componentNode->setType(Entity::COMPONENT);
 	componentNode = g->addNode(componentNode, Graph::DISCARD_DUP);
-	e = Edge::createEdge(releaseNode, componentNode, 
+	e = g->createEdge(releaseNode, componentNode, 
 		Entity::CONTAINS, Edge::IGNORE_DUP);
-	e = Edge::createEdge(componentNameNode, componentNode, 
+	e = g->createEdge(componentNameNode, componentNode, 
 		Entity::HAS_INSTANCE, Edge::IGNORE_DUP);
 
 	if (type == "Sources") {
@@ -141,9 +141,9 @@ void readFile(string &filename, Graph *g) {
 				+ n->getProperty("Package"));
 			name->setType(Entity::SOURCENAME);
 			name = g->addNode(name, Graph::DISCARD_DUP);
-			e = Edge::createEdge(name, n, Entity::HAS_VERSION, 
+			e = g->createEdge(name, n, Entity::HAS_VERSION, 
 					Edge::IGNORE_DUP);
-			e = Edge::createEdge(componentNode, n, 
+			e = g->createEdge(componentNode, n, 
 					Entity::CONTAINS);
 		}
 	}
@@ -159,15 +159,13 @@ void readFile(string &filename, Graph *g) {
 			name->setType(Entity::BINARYNAME);
 			name->addProperty("Package", n->getProperty("Package"));
 			name = g->addNode(name, Graph::DISCARD_DUP);
-			e = Edge::createEdge(name, n, Entity::HAS_VERSION, 
-					Edge::IGNORE_DUP);
-			e = Edge::createEdge(componentNode, n, 
-				Entity::CONTAINS);
+			e = g->createEdge(name, n, Entity::HAS_VERSION, Edge::IGNORE_DUP);
+			e = g->createEdge(componentNode, n, Entity::CONTAINS);
 			Node *arch = new Node("Architecture:"
 				+ n->getProperty("Architecture"));
 			arch->setType(Entity::ARCHITECTURE);
 			arch = g->addNode(arch, Graph::DISCARD_DUP);
-			e = Edge::createEdge(n, arch, Entity::FOR_ARCHITECTURE, 
+			e = g->createEdge(n, arch, Entity::FOR_ARCHITECTURE, 
 					Edge::IGNORE_DUP);
 		}
 	}
@@ -190,7 +188,7 @@ void addDependency(Node *n, Graph *g, string dep, Entity::EntityType type) {
 			name->addProperty("Package", "OR");
 			name->setType(Entity::OR);
 			name = g->addNode(name, Graph::IGNORE_DUP);
-			Edge::createEdge(n, name, type);
+			g->createEdge(n, name, type);
 		}
 		else {
 			name = n;
@@ -219,9 +217,10 @@ void addDependency(Node *n, Graph *g, string dep, Entity::EntityType type) {
 			oNode = g->findNode("Virtual:" + bname);
 		}
 		if (oNode == NULL) {
+			list<Edge*> inEdges = g->getInEdges(n);
 			while (n->getType() == Entity::OR) {
-				if (n->getInEdges().begin() != n->getInEdges().end()) {
-					Edge *e = *n->getInEdges().begin();
+				if (inEdges.begin() != inEdges.end()) {
+					Edge *e = *inEdges.begin();
 					n = const_cast<Node*>(e->getFromNode());
 				}
 				else {
@@ -235,7 +234,7 @@ void addDependency(Node *n, Graph *g, string dep, Entity::EntityType type) {
 			return;
 		}
 		else {
-			Edge::createEdge(n, oNode, type);
+			g->createEdge(n, oNode, type);
 		}
 	}
 }
@@ -289,7 +288,7 @@ void fixprovides(Node *n, Graph *g) {
 					+ d.substr(it, itTokenEnd - it));
 				name->setType(Entity::VIRTUAL);
 				name = g->addNode(name, Graph::DISCARD_DUP);
-				Edge::createEdge(name, n, Entity::PROVIDED);
+				g->createEdge(name, n, Entity::PROVIDED);
 			}
 			it = itTokenEnd;
 		}	
@@ -312,7 +311,7 @@ void fixArchitecture(Node *n, Graph *g) {
 					+ d.substr(it, itTokenEnd - it));
 				arch->setType(Entity::ARCHITECTURE);
 				arch = g->addNode(arch, Graph::DISCARD_DUP);
-				Edge::createEdge(n, arch, Entity::FOR_ARCHITECTURE, 
+				g->createEdge(n, arch, Entity::FOR_ARCHITECTURE, 
 					Edge::IGNORE_DUP);
 			}
 			it = itTokenEnd;
@@ -336,7 +335,7 @@ void fixRelease(Node *n, Graph *g) {
 					+ d.substr(it, itTokenEnd - it));
 				arch->setType(Entity::ARCHITECTURE);
 				arch = g->addNode(arch, Graph::DISCARD_DUP);
-				Edge::createEdge(n, arch, Entity::INCLUDES_ARCH, 
+				g->createEdge(n, arch, Entity::INCLUDES_ARCH, 
 					Edge::IGNORE_DUP);
 			}
 			it = itTokenEnd;
@@ -370,4 +369,13 @@ DebianGraph::DebianGraph(string cachedir) {
 }
 
 DebianGraph::~DebianGraph() {
+}
+
+void DebianGraph::freeNodes() {
+	Node *n;
+	for (NodeIndexT::iterator i=nodeIndex.begin(); i != nodeIndex.end(); ++i) {
+		n = (*i).second;
+		nodeIndex.erase(nodeIndex.begin());
+		delete(n);
+	}
 }

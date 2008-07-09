@@ -9,12 +9,11 @@ using namespace std;
 
 class FindReverseDeps : DGUnaryOperator {
 	private:
-		Node *singleNode;
 		set<Node*> nodeList;
 	public:
 		FindReverseDeps(Graph &g, Node *n) : DGUnaryOperator(g)
 		{
-			singleNode = n;
+			nodeList.insert(n);
 		};
 		FindReverseDeps(Graph &g, set<Node*> &v) : DGUnaryOperator(g)
 		{

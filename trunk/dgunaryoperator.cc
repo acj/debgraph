@@ -9,19 +9,17 @@ DGUnaryOperator::~DGUnaryOperator() {
 
 void DGUnaryOperator::copyConsistentEdges(Graph &source, Graph &sink) {
 	Node *n;
-	Edge *e;
 	for (GraphIterator i = sink.begin(); i != sink.end(); ++i) {
 		string fromNodeId, toNodeId;
-		set<Edge*> outEdges;
-		set<Edge*>::const_iterator edgeIter;
+		EdgeSetIterator edgeIter;
 		fromNodeId = (*i)->getId();
 		if (source.hasNode(fromNodeId)) {
 			n = source.findNode(fromNodeId);
-			outEdges = n->getOutEdges();
+			EdgeSet &outEdges = source.getOutEdges(n);
 			for (edgeIter = outEdges.begin(); edgeIter != outEdges.end(); ++edgeIter) {
 				toNodeId = (*edgeIter)->getToNode()->getId();
 				if (sink.hasNode(toNodeId)) {
-					e = Edge::createEdge(*i, sink.findNode(toNodeId), (*edgeIter)->getType(), Edge::IGNORE_DUP);
+					sink.createEdge(*i, sink.findNode(toNodeId), (*edgeIter)->getType(), Edge::IGNORE_DUP);
 				}
 			}
 		}

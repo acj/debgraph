@@ -7,7 +7,6 @@
 
 bool FilterTest::run(Graph &g) {
 	Graph g1;
-	Edge *e;
 	// g1
 	Node *releaseNode = new Node("Release:semistable");
 	releaseNode->addProperty("id", "Release:semistable");
@@ -21,9 +20,9 @@ bool FilterTest::run(Graph &g) {
 	componentNode->addProperty("id", "Component:semistable:main");
 	componentNode->setType(Entity::COMPONENTNAME);
 	componentNode = g1.addNode(componentNode, Graph::DISCARD_DUP);
-	e = Edge::createEdge(releaseNode, componentNode, 
+	g1.createEdge(releaseNode, componentNode, 
 		Entity::CONTAINS, Edge::IGNORE_DUP);
-	e = Edge::createEdge(componentNameNode, componentNode,
+	g1.createEdge(componentNameNode, componentNode,
 		Entity::HAS_INSTANCE, Edge::IGNORE_DUP);
 
 	FilterProperties fp;

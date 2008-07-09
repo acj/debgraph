@@ -7,7 +7,6 @@
 
 bool DifferenceTest::run(Graph &g) {
 	Graph g1, g2;
-	Edge *e;
 	// g1
 	Node *releaseNode = new Node("Release:semistable");
 	releaseNode->setType(Entity::RELEASE);
@@ -18,9 +17,9 @@ bool DifferenceTest::run(Graph &g) {
 	Node *componentNode = new Node("Component:semistable:main");
 	componentNode->setType(Entity::COMPONENTNAME);
 	componentNode = g1.addNode(componentNode, Graph::DISCARD_DUP);
-	e = Edge::createEdge(releaseNode, componentNode, 
+	g1.createEdge(releaseNode, componentNode, 
 		Entity::CONTAINS, Edge::IGNORE_DUP);
-	e = Edge::createEdge(componentNameNode, componentNode,
+	g1.createEdge(componentNameNode, componentNode,
 		Entity::HAS_INSTANCE, Edge::IGNORE_DUP);
 	// g2
 	Node *releaseNode_g2 = new Node("Release:semistable");

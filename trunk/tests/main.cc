@@ -7,6 +7,7 @@
 
 #include "testkit.h"
 #include "debian.h"
+#include "graph.h"
 
 int main(int argc, char *argv[]) {
 	time_t ct = time(NULL);

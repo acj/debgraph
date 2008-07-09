@@ -72,10 +72,62 @@ class FindCycles: public DGUnaryOperator {
 			initTraversalData();
 			startNodeId = startNode;
 		};
+		FindCycles(Graph &g, EntityGroup eGroup, string startNode)
+			: DGUnaryOperator(g) {
+			switch(eGroup) {
+				case PRE_DEPENDS:
+					allowedEntities.insert(Entity::CONTAINS);
+					allowedEntities.insert(Entity::PRE_DEPENDS);
+					allowedEntities.insert(Entity::HAS_VERSION);
+					break;
+				case DEPENDS:
+					allowedEntities.insert(Entity::CONTAINS);
+					allowedEntities.insert(Entity::PRE_DEPENDS);
+					allowedEntities.insert(Entity::DEPENDS);
+					allowedEntities.insert(Entity::HAS_VERSION);
+					break;
+				case CONFLICTS:
+					allowedEntities.insert(Entity::CONTAINS);
+					allowedEntities.insert(Entity::PRE_DEPENDS);
+					allowedEntities.insert(Entity::DEPENDS);
+					allowedEntities.insert(Entity::HAS_VERSION);
+					allowedEntities.insert(Entity::CONFLICTS);
+					break;
+				default:
+					break;
+			}
+			discoverAllNodes = false;
+			initTraversalData();
+			startNodeId = startNode;
+		};
 		FindCycles(Graph &g, EntityGroup eGroup) : DGUnaryOperator(g)
 		{
+			switch(eGroup) {
+				case PRE_DEPENDS:
+					allowedEntities.insert(Entity::CONTAINS);
+					allowedEntities.insert(Entity::PRE_DEPENDS);
+					allowedEntities.insert(Entity::HAS_VERSION);
+					break;
+				case DEPENDS:
+					allowedEntities.insert(Entity::CONTAINS);
+					allowedEntities.insert(Entity::PRE_DEPENDS);
+					allowedEntities.insert(Entity::DEPENDS);
+					allowedEntities.insert(Entity::HAS_VERSION);
+					break;
+				case CONFLICTS:
+					allowedEntities.insert(Entity::CONTAINS);
+					allowedEntities.insert(Entity::PRE_DEPENDS);
+					allowedEntities.insert(Entity::DEPENDS);
+					allowedEntities.insert(Entity::HAS_VERSION);
+					allowedEntities.insert(Entity::CONFLICTS);
+					break;
+				default:
+					break;
+			}
 			Node *n = *(g.begin());
-			FindCycles(g, eGroup, n->getId(), true);
+			discoverAllNodes = false;
+			initTraversalData();
+			startNodeId = n->getId();
 		};
 		~FindCycles();
 };

@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 	
 	TestKit::instance()->run(g);
 	TestKit::instance()->createIndex(ofile);
-
+	g.freeNodes();
 	ofile << "<br><font size=\"-1\">Problems? Robert Lemmen &lt;<a href=\"mailtourobertle@semistable.com\">robertle@semistable.com</a>&gt;</font>" << endl;
 	ofile << "<br><font size=\"-1\">Generated " << ctime(&ct) << "</font>" << endl;
 	ofile.close();

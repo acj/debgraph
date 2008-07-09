@@ -25,9 +25,10 @@ Graph& FindDeps::execute() {
 		if (result.hasNode(node->getId())) {
 			continue;
 		}
-		result.addNode(new Node(*node), Graph::FAIL_DUP);
-		for (EdgeSetConstIterator edgeIter = node->getOutEdges().begin();
-				edgeIter != node->getOutEdges().end(); ++edgeIter) {
+		result.addNode(node, Graph::FAIL_DUP);
+		EdgeSet &edgeSet = operand.getOutEdges(node);
+		for (EdgeSetIterator edgeIter = edgeSet.begin();
+				edgeIter != edgeSet.end(); ++edgeIter) {
 			if ((*edgeIter)->getType() == Entity::DEPENDS
 					|| (*edgeIter)->getType() == Entity::PRE_DEPENDS
 					|| (*edgeIter)->getType() == Entity::HAS_VERSION

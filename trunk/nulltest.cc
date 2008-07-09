@@ -16,7 +16,7 @@ bool NullTest::run(Graph &g) {
 	
 	for (GraphIterator i = g.begin(); i != g.end(); ++i) {
 		Node *n = *i;
-		set<Edge*> edges = n->getOutEdges();
+		EdgeSet &edges = g.getOutEdges(n);
 		edgecount += edges.size();
 	}
 	

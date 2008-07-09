@@ -66,8 +66,8 @@ bool Structure::run(Graph &g) {
 			releases.insert(n->getId());
 		}
 		string fromNodeType = n->getTypeString();
-		set<Edge*> edges = n->getOutEdges();
-		for (set<Edge*>::iterator j = edges.begin(); j != edges.end(); j++) {
+		EdgeSet &edges = g.getOutEdges(n);
+		for (EdgeSetIterator j = edges.begin(); j != edges.end(); j++) {
 			Edge *cedge = *j;
 			string edgeType = cedge->getTypeString();
 			Node *cNode = const_cast<Node*>(cedge->getToNode());

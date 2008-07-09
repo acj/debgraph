@@ -8,15 +8,17 @@ bool FindReverseDepsTest::run(Graph &g) {
 	Graph depGraph;
 	Node *tree = new Node("Tree");
 	tree->setType(Entity::BINARY);
+	tree->addProperty("Package", "Tree");
 	Node *soil = new Node("Soil");
 	soil->setType(Entity::BINARY);
+	soil->addProperty("Package", "Soil");
 
 	depGraph.addNode(tree);
 	depGraph.addNode(soil);
-	Edge::createEdge(tree, soil, Entity::DEPENDS, Edge::IGNORE_DUP);
-	Graph result = FindReverseDeps(g, soil).execute();
+	depGraph.createEdge(tree, soil, Entity::DEPENDS, Edge::IGNORE_DUP);
+	Graph result = FindReverseDeps(depGraph, soil).execute();
 	Node *n = result.findNode("Tree");
-	if (n == 0) {
+	if (n == NULL) {
 		cerr << "Could not find node 'Tree'" << endl;
 		return false;
 	}

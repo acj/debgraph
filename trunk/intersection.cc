@@ -23,7 +23,7 @@ Graph& Intersection::execute() {
 	for (GraphIterator i = smaller_g->begin(); i != smaller_g->end(); ++i) {
 		node_id = (*i)->getId();
 		if (larger_g->hasNode(node_id)) {
-			result.addNode(new Node(**i), Graph::FAIL_DUP);
+			result.addNode(*i, Graph::FAIL_DUP);
 		}
 	}
 	copyConsistentEdges(l_operand, r_operand, result);
