@@ -1,7 +1,11 @@
 TOPDIR=../
-INCLUDES=`lua-config --include` -I../
+# For Lua 5.0:
+#INCLUDES=`lua-config --include` -I../
+#LDFLAGS=`lua-config --libs`
+# For Lua 5.1:
+INCLUDES=-I/usr/include/lua5.1 -I../
+LDFLAGS=-llua5.1 #`lua-config --libs`
 CXXFLAGS?=-g -Wall
-LDFLAGS=`lua-config --libs`
 MAKE=make
 CXX=g++
 # Remove the top-level main() object and prepend a directory prefix on 

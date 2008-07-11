@@ -22,7 +22,6 @@ extern "C"
 }
 
 static MemAcct *memAcct = MemAcct::instance();
-static DebianGraph *g;
 
 /* Create/set an integer field in a Lua table */
 static void setIntField(lua_State *L, const char *index, int value) {
@@ -138,7 +137,7 @@ static int loadPackages(lua_State *L) {
 		lua_error(L);
 	} else {
 		pkgPath = lua_tostring(L, -1);
-		g = new DebianGraph(pkgPath);
+		DebianGraph *g = new DebianGraph(pkgPath);
 		memAcct->addReference(g);
 		pushGraphAsTable(L, g);
 		lua_setglobal(L, "g");
