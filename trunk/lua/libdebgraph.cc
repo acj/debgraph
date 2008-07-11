@@ -68,19 +68,36 @@ static int stackDump (lua_State *L) {
 	return 0;
 }
 
-/* Pop a "Graph" object from the Lua stack */
-Graph* popGraph(lua_State *L) {
+/* Pop a Graph pseudo-object from the Lua stack */
+Entity* popEntity(lua_State *L) {
 	if (lua_type(L, -1) == LUA_TTABLE) {
+		lua_pushstring(L, "__dgtype");
+		lua_gettable(L, -2);
+		if (lua_type(L, -1) != LUA_TSTRING) {
+			lua_pop(L, 1);
+			lua_pushstring(L, "Argument is not a valid Entity object");
+			lua_error(L);
+		}
+		else if (strcmp(lua_tostring(L, -1), "edge") != 0
+				&& strcmp(lua_tostring(L, -1), "graph") != 0
+				&& strcmp(lua_tostring(L, -1), "node") != 0) {
+			lua_pop(L, 1);
+			lua_pushstring(L, "Argument is not a valid Entity object");
+			lua_error(L);
+		}
+		lua_pop(L, 1); // pop the type string off the stack
 		lua_pushstring(L, "__ptr");
 		lua_gettable(L, -2);
 		if (lua_type(L, -1) == LUA_TNUMBER) {
-			size_t gPtr = lua_tonumber(L, -1);
-			lua_pop(L, 2); // pop the Graph/table off the stack
-			if (memAcct->hasReference((void *)gPtr)) {
-				return (Graph *)gPtr;
-			}
+			size_t ePtr = lua_tonumber(L, -1);
+			lua_pop(L, 2); // pop the pointer and Graph/table off the stack
+			// FIXME: Need to verify pointer value
+			//if (memAcct->hasReference((void *)gPtr)) {
+				return (Entity *)ePtr;
+			//}
 		}
 		else {
+			lua_pop(L, 2);
 			lua_pushstring(L, "Invalid pointer value");
 			lua_error(L);
 		}
@@ -89,18 +106,43 @@ Graph* popGraph(lua_State *L) {
 	return 0;
 }
 
+/* Push a Graph onto the stack as a Lua table */
 void pushGraphAsTable(lua_State *L, Graph *g) {
 	lua_newtable(L);
-	setIntField(L, "size", g->size());	/* number of nodes */
-	setIntField(L, "__ptr", (size_t)g);	/* pointer to Graph object */
-	// TODO: __ptr needs to be hidden from Lua code somehow
+	setIntField(L, "__size", g->size());	/* number of nodes */
+	setIntField(L, "__ptr", (size_t)g);		/* pointer to Graph object */
+	setStringField(L, "__dgtype", "graph");
+}
+
+/* Push a Node onto the stack as a Lua table */
+void pushNodeAsTable(lua_State *L, Node *n) {
+	lua_newtable(L);
+	setIntField(L, "__ptr", (size_t)n);	/* pointer to Graph object */
+	setStringField(L, "__dgtype", "node");
 }
 
 /* Push nodes in the Graph onto the Lua stack as an array.
  *
- * NB: This function does not create a new Lua table.
+ * NB: This function does not create a new Lua table.  This enables the
+ * results to be embedded in another table (e.g., for a multidimensional
+ * array).
  */
 int pushNodesAsArray(lua_State *L, Graph *g) {
+	int idx = 1;
+	for (GraphIterator i = g->begin(); i != g->end(); ++i) {
+		lua_pushnumber(L, idx);
+		pushNodeAsTable(L, *i);
+		lua_settable(L, -3);
+		++idx;
+	}
+	return 1;
+}
+
+/* Push nodes in the Graph onto the Lua stack as an array of strings.
+ *
+ * NB: This function does not create a new Lua table.
+ */
+int pushNodeNamesAsArray(lua_State *L, Graph *g) {
 	int idx = 1;
 	for (GraphIterator i = g->begin(); i != g->end(); ++i) {
 		lua_pushnumber(L, idx);
@@ -116,8 +158,23 @@ int pushNodesAsArray(lua_State *L, Graph *g) {
 	return 1;
 }
 
+static int getNodeNames(lua_State *L) {
+	Graph *g = (Graph *)popEntity(L);
+	if (g == 0) {
+		lua_pushstring(L, "Could not get nodes from graph");
+		lua_error(L);
+	} else if (!memAcct->hasReference(g)) {
+		lua_pushstring(L, "Invalid pointer");
+		lua_error(L);
+	}
+	lua_newtable(L);
+	pushNodeNamesAsArray(L, g);
+	return 1;
+}
+
+/* Push the Node instances in a given Graph as an array of strings */
 static int getNodes(lua_State *L) {
-	Graph *g = popGraph(L);
+	Graph *g = (Graph *)popEntity(L);
 	if (g == 0) {
 		lua_pushstring(L, "Could not get nodes from graph");
 		lua_error(L);
@@ -130,24 +187,41 @@ static int getNodes(lua_State *L) {
 	return 1;
 }
 
+static int getProperty(lua_State *L) {
+	if (lua_type(L, -1) != LUA_TSTRING) {
+		lua_pushstring(L, "Argument #2: string expected");
+		lua_error(L);
+	}
+	string propName = lua_tostring(L, -1);
+	lua_pop(L, 1);
+	Node *n = (Node *)popEntity(L);
+	if (n->hasProperty(propName)) {
+		lua_pushstring(L, n->getProperty(propName).c_str());
+	}
+	else {
+		lua_pushstring(L, "");
+	}
+	return 1;
+}
+
 static int loadPackages(lua_State *L) {
 	const char *pkgPath;
 	if (lua_type(L, -1) != LUA_TSTRING) {
 		lua_pushstring(L, "Path must be a string");
 		lua_error(L);
-	} else {
-		pkgPath = lua_tostring(L, -1);
-		DebianGraph *g = new DebianGraph(pkgPath);
-		memAcct->addReference(g);
-		pushGraphAsTable(L, g);
-		lua_setglobal(L, "g");
 	}
-	return 0;
+	pkgPath = lua_tostring(L, -1);
+	lua_pop(L, 1);
+	DebianGraph *g = new DebianGraph(pkgPath);
+	memAcct->addReference(g);
+	pushGraphAsTable(L, g);
+	lua_setglobal(L, "g");
+	return 1;
 }
 
 static int operDifference(lua_State *L) {
-	Graph *g2 = popGraph(L);
-	Graph *g1 = popGraph(L);
+	Graph *g2 = (Graph *)popEntity(L);
+	Graph *g1 = (Graph *)popEntity(L);
 	if (g1 == 0 || g2 == 0) {
 		return 0;
 	}
@@ -160,7 +234,7 @@ static int operDifference(lua_State *L) {
 }
 
 static int operFilter(lua_State *L) {
-	Graph *g1 = popGraph(L);
+	Graph *g1 = (Graph *)popEntity(L);
 	if (g1 == 0) {
 		return 0;
 	}
@@ -176,7 +250,7 @@ static int operFilter(lua_State *L) {
 }
 
 static int operFindCycles(lua_State *L) {
-	Graph *g = popGraph(L);
+	Graph *g = (Graph *)popEntity(L);
 	if (g == 0) {
 		return 0;
 	}
@@ -211,7 +285,7 @@ static int operFindDeps(lua_State *L) {
 	const char *nodeName = lua_tostring(L, -1);
 	lua_pop(L, 1);
 	// First argument (graph)
-	Graph *g1 = popGraph(L);
+	Graph *g1 = (Graph *)popEntity(L);
 	if (g1 == 0) {
 		lua_pushstring(L, "Arg #1: Not a graph or the graph does not exist");
 		lua_error(L);
@@ -237,7 +311,7 @@ static int operFindReverseDeps(lua_State *L) {
 	const char *nodeName = lua_tostring(L, -1);
 	lua_pop(L, 1);
 	// First argument (graph)
-	Graph *g1 = popGraph(L);
+	Graph *g1 = (Graph *)popEntity(L);
 	if (g1 == 0) {
 		lua_pushstring(L, "Arg #1: Not a graph or the graph does not exist");
 		lua_error(L);
@@ -254,8 +328,8 @@ static int operFindReverseDeps(lua_State *L) {
 }
 
 static int operIntersection(lua_State *L) {
-	Graph *g2 = popGraph(L);
-	Graph *g1 = popGraph(L);
+	Graph *g2 = (Graph *)popEntity(L);
+	Graph *g1 = (Graph *)popEntity(L);
 	if (g1 == 0 || g2 == 0) {
 		return 0;
 	}
@@ -268,8 +342,8 @@ static int operIntersection(lua_State *L) {
 }
 
 static int operUnion(lua_State *L) {
-	Graph *g2 = popGraph(L);
-	Graph *g1 = popGraph(L);
+	Graph *g2 = (Graph *)popEntity(L);
+	Graph *g1 = (Graph *)popEntity(L);
 	if (g1 == 0 || g2 == 0) {
 		return 0;
 	}
@@ -282,8 +356,8 @@ static int operUnion(lua_State *L) {
 }
 
 static int operXOR(lua_State *L) {
-	Graph *g2 = popGraph(L);
-	Graph *g1 = popGraph(L);
+	Graph *g2 = (Graph *)popEntity(L);
+	Graph *g1 = (Graph *)popEntity(L);
 	if (g1 == 0 || g2 == 0) {
 		return 0;
 	}
@@ -297,7 +371,9 @@ static int operXOR(lua_State *L) {
 
 static const struct luaL_reg libdebgraph [] = {
 	{"LoadPackages", loadPackages},
+	{"GetNodeNames", getNodeNames},
 	{"GetNodes", getNodes},
+	{"GetProperty", getProperty},
 	{"Difference", operDifference},
 	{"FindDeps", operFindDeps},
 	{"FindRevDeps", operFindReverseDeps},
@@ -323,7 +399,9 @@ int luaopen_libdebgraph(lua_State *L) {
 	lua_register(L, "Union", operUnion);
 	lua_register(L, "XOR", operXOR);
 	/* support routines */
+	lua_register(L, "GetNodeNames", getNodeNames);
 	lua_register(L, "GetNodes", getNodes);
+	lua_register(L, "GetProperty", getProperty);
 	lua_register(L, "LoadPackages", loadPackages);
 	lua_register(L, "stackDump", stackDump);
 	return 1;
