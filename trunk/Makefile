@@ -25,12 +25,12 @@ clean:
 	rm -f *.o
 	rm -f $(TARGET)
 	rm -f .depend
-	@echo "Running cleanup scripts..."
-	-for s in `find scripts -name "C*" | grep -v "\.svn" | sort`; do $$s; done
 
 distclean: clean
 	$(MAKE) -C tests clean
 	$(MAKE) -C lua clean
+	@echo "Running cleanup scripts..."
+	-for s in `find scripts -name "C*" | grep -v "\.svn" | sort`; do $$s; done
 
 lua: $(TARGET)
 	$(MAKE) -C lua
