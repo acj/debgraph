@@ -240,10 +240,7 @@ static FilterRule popFilterCriterion(lua_State *L) {
 	if ( !(lua_type(L, -1) == LUA_TSTRING)
 			&& lua_type(L, -2) == LUA_TSTRING
 			&& lua_type(L, -3) == LUA_TSTRING) {
-		lua_pushstring(L, "Args 2-4: string expected");
-		lua_error(L);
-	} else if ( !(lua_type(L, -4) == LUA_TTABLE)) {
-		lua_pushstring(L, "Arg 1: Graph expected");
+		lua_pushstring(L, "Bad subject/verb/object parameter values: strings expected");
 		lua_error(L);
 	}
 	const char *subject = lua_tostring(L, -3);
@@ -254,7 +251,7 @@ static FilterRule popFilterCriterion(lua_State *L) {
 			|| strcmp(verb, "NCONTAINS") == 0
 			|| strcmp(verb, "EQUALS") == 0
 			|| strcmp(verb, "NEQUALS") == 0) ) {
-		lua_pushstring(L, "Arg #3: one of 'CONTAINS', 'NCONTAINS', 'EQUALS', or 'NEQUALS' expected");
+		lua_pushstring(L, "Bad verb parameter: one of 'CONTAINS', 'NCONTAINS', 'EQUALS', or 'NEQUALS' expected");
 		lua_error(L);
 	}
 	FilterVerb fVerb;
@@ -271,15 +268,44 @@ static FilterRule popFilterCriterion(lua_State *L) {
 	return fRule;
 }
 
-/* Pops *MANY* filter criteria from the stack (assumed to be at the top) */
-static int popFilterCriteria(lua_State *L) {
-	return 0;
+/* Pops *MANY* filter criteria from the stack.  The table containing
+ * these rules is assumed to be at the top of the stack. */
+static vector<FilterRule> popFilterCriteria(lua_State *L) {
+	if ( !(lua_type(L, -1) == LUA_TTABLE) ) {
+		lua_pushstring(L, "Bad filter criteria: table expected");
+		lua_error(L);
+	}
+	vector<FilterRule> fRules;
+	lua_pushnil(L);
+	while (lua_next(L, -2) != 0) {
+		// Key is at index -2; value at -1.  The value is another table.
+		lua_pushinteger(L, 1);
+		lua_gettable(L, -2);
+		lua_pushinteger(L, 2);
+		lua_gettable(L, -3);
+		lua_pushinteger(L, 3);
+		lua_gettable(L, -4);
+		fRules.push_back(popFilterCriterion(L));
+		lua_pop(L, 1); // Pop the table key
+	}
+	lua_pop(L, 1); // Pop the table
+	return fRules;
 }
 
 static int operFilter(lua_State *L) {
 	FilterProperties fProperties;
-	FilterRule fRule = popFilterCriterion(L);
-	fProperties.push_back(fRule);
+	vector<FilterRule> fRules;
+	if (lua_type(L, -1) == LUA_TTABLE) {
+		fRules = popFilterCriteria(L);
+	}
+	else {
+		fRules.push_back(popFilterCriterion(L));
+	}
+	for (vector<FilterRule>::iterator i = fRules.begin(); 
+			i != fRules.end(); 
+			++i) {
+		fProperties.push_back(*i);
+	}
 	Graph *g = (Graph *)popEntity(L);
 	if (g == 0) {
 		return 0;
