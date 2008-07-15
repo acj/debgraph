@@ -74,10 +74,10 @@ Edge* Graph::createEdge(Node *fromNode, Node *toNode, Entity::EntityType type,
 	e->setType(type);
 	// Add to "from" node's list
 	EdgeSet &edgeSetFrom = getOutEdges(fromNode);
-	edgeSetFrom.push_back(e);
+	edgeSetFrom.insert(e);
 	// Add to "to" node's list
 	EdgeSet &edgeSetTo = getInEdges(toNode);
-	edgeSetTo.push_back(e);
+	edgeSetTo.insert(e);
 	return e;
 }
 

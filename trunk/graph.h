@@ -11,8 +11,8 @@
 
 using namespace std;
 
-typedef list<Edge*> EdgeSet;
-typedef list<Edge*>::iterator EdgeSetIterator;
+typedef set<Edge*> EdgeSet;
+typedef set<Edge*>::iterator EdgeSetIterator;
 
 class GraphIterator;
 

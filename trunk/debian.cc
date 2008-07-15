@@ -217,7 +217,7 @@ void addDependency(Node *n, Graph *g, string dep, Entity::EntityType type) {
 			oNode = g->findNode("Virtual:" + bname);
 		}
 		if (oNode == NULL) {
-			list<Edge*> inEdges = g->getInEdges(n);
+			EdgeSet inEdges = g->getInEdges(n);
 			while (n->getType() == Entity::OR) {
 				if (inEdges.begin() != inEdges.end()) {
 					Edge *e = *inEdges.begin();
