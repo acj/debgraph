@@ -317,14 +317,27 @@ static int operFilter(lua_State *L) {
 }
 
 static int operFindCycles(lua_State *L) {
+	FindCycles *fc;
+	string startNode("");
+	// Use the starting node if it is given
+	if (lua_type(L, -1) == LUA_TSTRING
+			&& lua_type(L, -2) == LUA_TTABLE) {
+		startNode = lua_tostring(L, -1);
+		lua_pop(L, 1);
+	}
 	Graph *g = (Graph *)popEntity(L);
 	if (g == 0) {
 		return 0;
 	}
-	// TODO: Parameterize the starting node (passed from Lua)
-	FindCycles fc(*g, FindCycles::DEPENDS, string("Release:unstable"), false);
-	fc.execute();
-	vector<Graph*> &cycles = fc.getCycles();
+	// TODO: parameterize edge types
+	if (startNode == "") {
+		fc = new FindCycles(*g, FindCycles::DEPENDS);
+	}
+	else {
+		fc = new FindCycles(*g, FindCycles::DEPENDS, startNode, false);
+	}
+	fc->execute();
+	vector<Graph*> &cycles = fc->getCycles();
 	size_t cycleCount = cycles.size();
 	// This operation can consume a large amount of stack space.  We
 	// need to ensure that there is a slot available for each cycle
@@ -340,6 +353,7 @@ static int operFindCycles(lua_State *L) {
 		pushNodesAsArray(L, cycles[i]);
 		lua_pop(L, 1);
 	}
+	delete fc;
 	return 1;
 }
 
