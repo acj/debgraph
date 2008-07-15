@@ -103,6 +103,8 @@ Entity* popEntity(lua_State *L) {
 		}
 	}
 	// The object on top of the stack is not a Graph
+	lua_pushstring(L, "Argument is not a valid Entity object (table)");
+	lua_error(L);
 	return 0;
 }
 
@@ -233,20 +235,59 @@ static int operDifference(lua_State *L) {
 	}
 }
 
+/* Pops *ONE* filter criterion from the stack (assumed to be at the top) */
+static FilterRule popFilterCriterion(lua_State *L) {
+	if ( !(lua_type(L, -1) == LUA_TSTRING)
+			&& lua_type(L, -2) == LUA_TSTRING
+			&& lua_type(L, -3) == LUA_TSTRING) {
+		lua_pushstring(L, "Args 2-4: string expected");
+		lua_error(L);
+	} else if ( !(lua_type(L, -4) == LUA_TTABLE)) {
+		lua_pushstring(L, "Arg 1: Graph expected");
+		lua_error(L);
+	}
+	const char *subject = lua_tostring(L, -3);
+	const char *verb = lua_tostring(L, -2);	
+	const char *object = lua_tostring(L, -1);	
+	lua_pop(L, 3);
+	if ( !(strcmp(verb, "CONTAINS") == 0
+			|| strcmp(verb, "NCONTAINS") == 0
+			|| strcmp(verb, "EQUALS") == 0
+			|| strcmp(verb, "NEQUALS") == 0) ) {
+		lua_pushstring(L, "Arg #3: one of 'CONTAINS', 'NCONTAINS', 'EQUALS', or 'NEQUALS' expected");
+		lua_error(L);
+	}
+	FilterVerb fVerb;
+	if (strcmp(verb, "CONTAINS") == 0) {
+		fVerb = CONTAINS;
+	} else if (strcmp(verb, "NCONTAINS") == 0) {
+		fVerb = NCONTAINS;
+	} else if (strcmp(verb, "EQUALS") == 0) {
+		fVerb = EQUALS;
+	} else if (strcmp(verb, "NEQUALS") == 0) {
+		fVerb = NEQUALS;
+	}
+	FilterRule fRule = { string(subject), fVerb, string(object) };
+	return fRule;
+}
+
+/* Pops *MANY* filter criteria from the stack (assumed to be at the top) */
+static int popFilterCriteria(lua_State *L) {
+	return 0;
+}
+
 static int operFilter(lua_State *L) {
-	Graph *g1 = (Graph *)popEntity(L);
-	if (g1 == 0) {
+	FilterProperties fProperties;
+	FilterRule fRule = popFilterCriterion(L);
+	fProperties.push_back(fRule);
+	Graph *g = (Graph *)popEntity(L);
+	if (g == 0) {
 		return 0;
 	}
-	else {
-		FilterProperties fProperties;
-		FilterRule fRuleSection = { string("Section"), EQUALS, string("games") };
-		fProperties.push_back(fRuleSection);
-		Filter f = Filter(*g1, fProperties, FILTER_AND);
-		Graph &result = f.execute();
-		pushGraphAsTable(L, &result);
-		return 1;
-	}
+	Filter f = Filter(*g, fProperties, FILTER_OR);
+	Graph &result = f.execute();
+	pushGraphAsTable(L, &result);
+	return 1;
 }
 
 static int operFindCycles(lua_State *L) {
