@@ -142,9 +142,9 @@ void readFile(string &filename, Graph *g) {
 			name->setType(Entity::SOURCENAME);
 			name = g->addNode(name, Graph::DISCARD_DUP);
 			e = g->createEdge(name, n, Entity::HAS_VERSION, 
-					Edge::IGNORE_DUP);
+					Edge::NOCHECK_DUP);
 			e = g->createEdge(componentNode, n, 
-					Entity::CONTAINS);
+					Entity::CONTAINS, Edge::NOCHECK_DUP);
 		}
 	}
 	else if (type == "Packages") {
@@ -159,14 +159,15 @@ void readFile(string &filename, Graph *g) {
 			name->setType(Entity::BINARYNAME);
 			name->addProperty("Package", n->getProperty("Package"));
 			name = g->addNode(name, Graph::DISCARD_DUP);
-			e = g->createEdge(name, n, Entity::HAS_VERSION, Edge::IGNORE_DUP);
-			e = g->createEdge(componentNode, n, Entity::CONTAINS);
+			e = g->createEdge(name, n, Entity::HAS_VERSION, Edge::NOCHECK_DUP);
+			e = g->createEdge(componentNode, n, Entity::CONTAINS, 
+					Edge::NOCHECK_DUP);
 			Node *arch = new Node("Architecture:"
 				+ n->getProperty("Architecture"));
 			arch->setType(Entity::ARCHITECTURE);
 			arch = g->addNode(arch, Graph::DISCARD_DUP);
 			e = g->createEdge(n, arch, Entity::FOR_ARCHITECTURE, 
-					Edge::IGNORE_DUP);
+					Edge::NOCHECK_DUP);
 		}
 	}
 	f.close();
