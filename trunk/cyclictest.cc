@@ -31,19 +31,24 @@ void CyclicTest::findCyclesInDist(Graph &g, string distro, ofstream &out) {
 		//dotfile_orig << cycles[i].toGraphviz();
 		//dotfile_orig.close();
 		// Write out the reduced (BINARYNAME only) version
-		fc.mergePackageVersions(*cycles[i]);
+		Graph &currentCycle = *cycles[i];
+		currentCycle.mergePackageVersions();
 		// Use the first node as a representative for this cycle
-		GraphIterator gIter = cycles[i]->begin();
+		GraphIterator gIter = currentCycle.begin();
 		string pngFilename = "dot/" + distro + "-" + (*gIter)->getId() + ".png";
 		string dotFilename = "out/dot/" + distro + "-" + (*gIter)->getId() + ".dot";
 		// Graphviz output
 		ofstream dotFile(dotFilename.c_str());
-		dotFile << cycles[i]->toGraphviz();
+		dotFile << currentCycle.toGraphviz();
 		dotFile.close();
 		// HTML output
 		out << "* <a href=\"" << pngFilename << "\">";
-		for (; gIter != cycles[i]->end(); ++gIter) {
-			out << (*gIter)->getProperty("Package") << " ";
+		for (; gIter != currentCycle.end(); ++gIter) {
+			string packageName = (*gIter)->getProperty("Package");
+			if (packageName.compare("OR") != 0) {
+				out << "<span title=\"" << (*gIter)->getId() << "\">" 
+					<< packageName << "</span> ";
+			}
 		}
 		out << "</a><br/>" << endl;
 	}

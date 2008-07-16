@@ -53,7 +53,7 @@ void Graph::clone(const Graph &g) {
 
 Edge* Graph::createEdge(Node *fromNode, Node *toNode, Entity::EntityType type, 
 		Edge::CreateFlag flag) {
-	if (outEdges.find(fromNode) == outEdges.end()) {
+	if (!this->hasNode(fromNode->getId())) {
 		throw("Could not find Node object in index");
 		return NULL;
 	}
@@ -79,6 +79,21 @@ Edge* Graph::createEdge(Node *fromNode, Node *toNode, Entity::EntityType type,
 	EdgeSet &edgeSetTo = getInEdges(toNode);
 	edgeSetTo.insert(e);
 	return e;
+}
+
+void Graph::deleteEdge(Node *from, Node *to, Entity::EntityType eType) {
+	EdgeSet &fromOutEdges = *outEdges[from];
+	EdgeSet &toInEdges = *inEdges[to];
+	for (EdgeSetIterator eIter = fromOutEdges.begin(); 
+			eIter != fromOutEdges.end(); 
+			++eIter) {
+		if ((*eIter)->getToNode() == to && (*eIter)->getType() == eType) {
+			Edge *e = *eIter;
+			fromOutEdges.erase(eIter);
+			toInEdges.erase(e);
+			delete e;
+		}
+	}
 }
 
 bool Graph::hasEdge(Node *from, Node *to, Entity::EntityType eType) {
@@ -162,6 +177,52 @@ EdgeSet& Graph::getOutEdges(Node *n) {
 bool Graph::hasNode(const string &id) const {
 	NodeIndexConstIteratorT i = nodeIndex.find(id);
 	return (i != nodeIndex.end());
+}
+
+void Graph::mergePackageVersions() {
+	Node *nameNode, *verNode, *otherNode;
+	Edge *copyEdge;
+	EdgeSetIterator nameEdgeIter, verEdgeIter;
+	list<Node*> nodesToRemove;
+	list<Edge*> edgesToRemove;
+	for (GraphIterator i = begin(); i != end(); ++i) {
+		if ((*i)->getType() == Entity::BINARYNAME) {
+			nameNode = *i;
+			EdgeSet &nameOutEdges = getOutEdges(nameNode);
+			for (nameEdgeIter = nameOutEdges.begin(); 
+					nameEdgeIter != nameOutEdges.end(); 
+					++nameEdgeIter) {
+				if ((*nameEdgeIter)->getType() == Entity::HAS_VERSION) {
+					copyEdge = *nameEdgeIter;
+					verNode = const_cast<Node*>(copyEdge->getToNode());
+					EdgeSet &verOutEdges = getOutEdges(verNode);
+					for (verEdgeIter = verOutEdges.begin();
+							verEdgeIter != verOutEdges.end();
+							++verEdgeIter) {
+						otherNode = const_cast<Node*>((*verEdgeIter)->getToNode());
+						createEdge(nameNode, otherNode, 
+								(*verEdgeIter)->getType(), Edge::IGNORE_DUP);
+						edgesToRemove.push_back(*nameEdgeIter);
+						edgesToRemove.push_back(*verEdgeIter);
+					}
+					nodesToRemove.push_back(verNode);
+				}
+			}
+		}
+	}
+	// Clean up
+	for (list<Edge*>::iterator edgeIter = edgesToRemove.begin();
+			edgeIter != edgesToRemove.end();
+			++edgeIter) {
+		deleteEdge((Node *)(*edgeIter)->getFromNode(), 
+				(Node *)(*edgeIter)->getToNode(), 
+				(*edgeIter)->getType());
+	}
+	for (list<Node*>::iterator nodeIter = nodesToRemove.begin();
+			nodeIter != nodesToRemove.end();
+			++nodeIter) {
+		deleteNode((*nodeIter)->getId());
+	}
 }
 
 int Graph::size() const {

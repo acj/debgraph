@@ -346,11 +346,13 @@ static int operFindCycles(lua_State *L) {
 	lua_checkstack(L, cycleCount + 3);
 	lua_newtable(L);
 	for (size_t i=0; i<cycleCount; ++i) {
+		Graph *currentCycle = cycles[i];
+		currentCycle->mergePackageVersions();
 		lua_newtable(L);
 		lua_pushnumber(L, i);
 		lua_pushvalue(L, -2);
 		lua_settable(L, -4);
-		pushNodesAsArray(L, cycles[i]);
+		pushNodesAsArray(L, currentCycle);
 		lua_pop(L, 1);
 	}
 	delete fc;

@@ -35,6 +35,7 @@ class Graph {
 		void clone(const Graph &);
 		Edge* createEdge(Node*, Node*, Entity::EntityType, 
 				Edge::CreateFlag flag=Edge::IGNORE_DUP);
+		void deleteEdge(Node*, Node*, Entity::EntityType);
 		bool hasEdge(Node*, Node*, Entity::EntityType=Entity::DEPENDS);
 		Node* addNode(Node *node, AddFlag flag=FAIL_DUP);
 		void deleteNode(const string &);
@@ -43,6 +44,7 @@ class Graph {
 		EdgeSet& getInEdges(Node*);
 		EdgeSet& getOutEdges(Node*);
 		bool hasNode(const string &) const;
+		void mergePackageVersions();
 		GraphIterator& begin() const;
 		GraphIterator& end() const;
 		int size() const;
