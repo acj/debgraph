@@ -316,10 +316,63 @@ static int operFilter(lua_State *L) {
 	return 1;
 }
 
+list<string> popStringArray(lua_State *L) {
+	list<string> strings;
+	if ( !(lua_type(L, 1) == LUA_TTABLE) ) {
+		lua_pushstring(L, "Bad argument to popStringArray");
+		lua_error(L);
+	}
+	lua_pushnil(L);
+	while (lua_next(L, -2) != 0) {
+		if (lua_type(L, -1) == LUA_TSTRING) {
+			strings.push_back(string(lua_tostring(L, -1)));
+		}
+		lua_pop(L, 1);
+	}
+	lua_pop(L, 1); // Pop the table (array)
+	return strings;
+}
+
+// Binding for the FindCycles operator.
+//
+// Parameters (in LTR order):
+// 		Graph (table)
+//		Allowed edge types (table of strings) [optional]
+//		Starting node (string) [optional]
+//
+// Returns to Lua a set of components (table of tables of nodes).
 static int operFindCycles(lua_State *L) {
 	FindCycles *fc;
 	string startNode("");
-	// Use the starting node if it is given
+	set<Entity::EntityType> edgeTypes;
+	// Use the starting node AND allowed edges (three argument flavor)
+	if (lua_type(L, -1) == LUA_TSTRING
+			&& lua_type(L, -2) == LUA_TTABLE
+			&& lua_type(L, -3) == LUA_TTABLE) {
+		startNode = lua_tostring(L, -1);
+		lua_pop(L, 1);
+		list<string> requestedEdgeTypes = popStringArray(L);
+		// TODO: Tie this structure into the FindCycles class somehow
+		map<string, Entity::EntityType> allowableTypes;
+		allowableTypes["CONTAINS"] = Entity::CONTAINS;
+		allowableTypes["PRE_DEPENDS"] =  Entity::PRE_DEPENDS;
+		allowableTypes["DEPENDS"] = Entity::DEPENDS;
+		allowableTypes["HAS_VERSION"] = Entity::HAS_VERSION;
+		allowableTypes["CONFLICTS"] = Entity::CONFLICTS;
+		allowableTypes["SUGGESTS"] = Entity::SUGGESTS;
+		allowableTypes["RECOMMENDS"] = Entity::RECOMMENDS;
+		allowableTypes["FOR_ARCHITECTURE"] = Entity::FOR_ARCHITECTURE;
+		allowableTypes["INCLUDES_ARCH"] = Entity::INCLUDES_ARCH;
+		// Process requested edge types
+		for (list<string>::const_iterator i = requestedEdgeTypes.begin();
+				i != requestedEdgeTypes.end();
+				++i) {
+			if (allowableTypes.find(*i) != allowableTypes.end()) {
+				edgeTypes.insert(allowableTypes[*i]);
+			}
+		}
+	}
+	// Use the starting node only (two argument flavor)
 	if (lua_type(L, -1) == LUA_TSTRING
 			&& lua_type(L, -2) == LUA_TTABLE) {
 		startNode = lua_tostring(L, -1);
@@ -329,12 +382,16 @@ static int operFindCycles(lua_State *L) {
 	if (g == 0) {
 		return 0;
 	}
-	// TODO: parameterize edge types
 	if (startNode == "") {
-		fc = new FindCycles(*g, FindCycles::DEPENDS);
+		fc = new FindCycles(*g, FindCycles::ALL);
 	}
 	else {
-		fc = new FindCycles(*g, FindCycles::DEPENDS, startNode, false);
+		if (edgeTypes.size() > 0) {	
+			fc = new FindCycles(*g, edgeTypes, startNode);
+		}
+		else {
+			fc = new FindCycles(*g, FindCycles::ALL, startNode, false);
+		}
 	}
 	fc->execute();
 	vector<Graph*> &cycles = fc->getCycles();

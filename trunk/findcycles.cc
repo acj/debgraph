@@ -9,19 +9,17 @@ using namespace std;
 // NB: Constructor defined in header file.
 
 FindCycles::~FindCycles() {
-	// XXX Deallocate memory for traversal data
+	for (map<string,NodeState*>::iterator iter = traversalData.begin();
+			iter != traversalData.end();
+			++iter) {
+		pair<string,NodeState*> travPair = *iter;
+		delete travPair.second;
+	}
+	traversalData.clear();
 }
 
 static inline int min(int a, int b) {
 	return a < b ? a : b;
-}
-
-string hex(void *p) {
-	char buf[67];
-	string s;
-	sprintf(buf, "X%08X", (unsigned int)p);
-	s = buf;
-	return s;
 }
 
 // Implementation of Tarjan's algorithm for finding strongly connected
@@ -41,12 +39,12 @@ int FindCycles::tarjan(Graph &g, Node *n, list<Node*> *l, int *N) {
 	(*N)++;
 	int retval = 0;
 	string nodePackName = n->getProperty("Package");
-	/* recursion */
+	// recursion
 	NodeState *onState;
 	EdgeSet &edgeSet = g.getOutEdges(n);
 	EdgeSetIterator i;
 	for (i = edgeSet.begin(); i != edgeSet.end(); i++) {
-		/* examine this link */
+		// examine this link
 		if (allowedEntities.find((*i)->getType()) != allowedEntities.end()) {
 			Node *on = const_cast<Node*>((*i)->getToNode());
 			onState = traversalData[on->getId()];
@@ -61,7 +59,7 @@ int FindCycles::tarjan(Graph &g, Node *n, list<Node*> *l, int *N) {
 		}
 	}
 	if (nState->low == nState->dfs) {
-		/* found an SCC - unwind the stack to discover its nodes */
+		// found an SCC - unwind the stack to discover its nodes
 		Node *cn;
 		list<Node*> tl;
 		do {
@@ -142,7 +140,7 @@ void FindCycles::initTraversalData() {
 		nState->low = 0;
 		nState->mark = 0;
 		if (n->getType() == Entity::BINARY) {
-			/* mark all binaries as handled */
+			// mark all binaries as handled
 			nState->mark = 2;
 		}
 		traversalData.insert(pair<string,NodeState*>(n->getId(), nState));

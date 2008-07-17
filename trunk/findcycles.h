@@ -12,6 +12,7 @@ class FindCycles: public DGUnaryOperator {
 	public:
 		// Some pre-packaged sets of entities for common tasks
 		enum EntityGroup {
+			ALL,
 			PRE_DEPENDS,
 			DEPENDS,
 			CONFLICTS
@@ -47,6 +48,17 @@ class FindCycles: public DGUnaryOperator {
 				bool discoverAllNodesFlag) : DGUnaryOperator(g)
 		{
 			switch(eGroup) {
+				case ALL:
+					allowedEntities.insert(Entity::CONTAINS);
+					allowedEntities.insert(Entity::PRE_DEPENDS);
+					allowedEntities.insert(Entity::DEPENDS);
+					allowedEntities.insert(Entity::HAS_VERSION);
+					allowedEntities.insert(Entity::CONFLICTS);
+					allowedEntities.insert(Entity::SUGGESTS);
+					allowedEntities.insert(Entity::RECOMMENDS);
+					allowedEntities.insert(Entity::PROVIDED);
+					allowedEntities.insert(Entity::FOR_ARCHITECTURE);
+					allowedEntities.insert(Entity::INCLUDES_ARCH);
 				case PRE_DEPENDS:
 					allowedEntities.insert(Entity::CONTAINS);
 					allowedEntities.insert(Entity::PRE_DEPENDS);
@@ -75,6 +87,17 @@ class FindCycles: public DGUnaryOperator {
 		FindCycles(Graph &g, EntityGroup eGroup, string startNode)
 			: DGUnaryOperator(g) {
 			switch(eGroup) {
+				case ALL:
+					allowedEntities.insert(Entity::CONTAINS);
+					allowedEntities.insert(Entity::PRE_DEPENDS);
+					allowedEntities.insert(Entity::DEPENDS);
+					allowedEntities.insert(Entity::HAS_VERSION);
+					allowedEntities.insert(Entity::CONFLICTS);
+					allowedEntities.insert(Entity::SUGGESTS);
+					allowedEntities.insert(Entity::RECOMMENDS);
+					allowedEntities.insert(Entity::PROVIDED);
+					allowedEntities.insert(Entity::FOR_ARCHITECTURE);
+					allowedEntities.insert(Entity::INCLUDES_ARCH);
 				case PRE_DEPENDS:
 					allowedEntities.insert(Entity::CONTAINS);
 					allowedEntities.insert(Entity::PRE_DEPENDS);
@@ -103,6 +126,17 @@ class FindCycles: public DGUnaryOperator {
 		FindCycles(Graph &g, EntityGroup eGroup) : DGUnaryOperator(g)
 		{
 			switch(eGroup) {
+				case ALL:
+					allowedEntities.insert(Entity::CONTAINS);
+					allowedEntities.insert(Entity::PRE_DEPENDS);
+					allowedEntities.insert(Entity::DEPENDS);
+					allowedEntities.insert(Entity::HAS_VERSION);
+					allowedEntities.insert(Entity::CONFLICTS);
+					allowedEntities.insert(Entity::SUGGESTS);
+					allowedEntities.insert(Entity::RECOMMENDS);
+					allowedEntities.insert(Entity::PROVIDED);
+					allowedEntities.insert(Entity::FOR_ARCHITECTURE);
+					allowedEntities.insert(Entity::INCLUDES_ARCH);
 				case PRE_DEPENDS:
 					allowedEntities.insert(Entity::CONTAINS);
 					allowedEntities.insert(Entity::PRE_DEPENDS);
