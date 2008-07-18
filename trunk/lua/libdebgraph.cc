@@ -12,6 +12,7 @@
 #include "findreversedeps.h"
 #include "intersection.h"
 #include "union.h"
+#include "version.h"
 #include "xor.h"
 
 extern "C"
@@ -207,17 +208,23 @@ static int getProperty(lua_State *L) {
 }
 
 static int loadPackages(lua_State *L) {
-	const char *pkgPath;
 	if (lua_type(L, -1) != LUA_TSTRING) {
 		lua_pushstring(L, "Path must be a string");
 		lua_error(L);
 	}
-	pkgPath = lua_tostring(L, -1);
+	const char *pkgPath = lua_tostring(L, -1);
 	lua_pop(L, 1);
 	DebianGraph *g = new DebianGraph(pkgPath);
 	memAcct->addReference(g);
 	pushGraphAsTable(L, g);
 	lua_setglobal(L, "g");
+	return 1;
+}
+
+static int showVersion(lua_State *L) {
+	char ver[30];
+	sprintf(ver, "debgraph version %s", DEBGRAPH_VERSION);
+	lua_pushstring(L, ver);
 	return 1;
 }
 
@@ -543,7 +550,8 @@ int luaopen_libdebgraph(lua_State *L) {
 	lua_register(L, "GetNodes", getNodes);
 	lua_register(L, "GetProperty", getProperty);
 	lua_register(L, "LoadPackages", loadPackages);
-	lua_register(L, "stackDump", stackDump);
+	lua_register(L, "ShowVersion", showVersion);
+	lua_register(L, "StackDump", stackDump);
 	return 1;
 }
 }
