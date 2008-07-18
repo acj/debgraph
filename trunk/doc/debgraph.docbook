@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+  "/usr/share/xml/docbook/schema/dtd/4.4/docbookx.dtd">
+   
+<book lang="en">
+    
+<bookinfo>
+<title>DebGraph Manual</title>
+<authorgroup>
+<author>
+<firstname>Adam</firstname>
+<othername>C</othername>
+<surname>Jensen</surname>
+</author>
+</authorgroup>
+<date>7/17/2008</date>
+<releaseinfo>1.0.0</releaseinfo>
+</bookinfo>
+
+ 
+<chapter id="introduction">
+<title>Introduction</title>
+	  
+<para>
+DebGraph is a tool that provides a simple, intuitive interface to the
+Debian package dependency graph.  The package graph contains information
+about packages (name, version, description, etc), their dependencies,
+and other useful details.  By providing an easy way to interact with this
+graph, DebGraph enables useful analyses that can identify interesting
+or problematic package constellations.  As an example, it is helpful
+for the Debian QA team to track cyclic dependencies (that is, packages
+that [in]directly depend on themselves).  Such dependency cycles can be
+symptoms of package problems, and therefore it is important that there
+is tool support for locating and tracking them.
+</para>
+
+<para>
+As the number of packages in Debian has grown, the complexity of the
+package dependency graph has become difficult to manage.  New scripts
+and programs that interact with package information must address that
+complexity.  This involves writing code that can represent the graph
+in memory and manipulate it, and such work is typically delicate and
+error-prone.  It would be helpful to separate this functionality into
+a standalone program (and perhaps an accompanying library) that could
+provide generic graph infrastructure to anyone who needs to query or
+manipulate the Debian package dependency graph.
+</para>
+
+<para>
+DebGraph aims to provide this generic infrastructure through a set of
+graph operators (e.g., union, intersection, find cycles, and so on)
+that can be composed in complex ways to facilitate powerful analysis of
+the graph.  In addition, integration with Lua enables graph queries from
+a flexible, dynamically typed language, thus removing the constraint of
+using C++ code to perform queries.
+</para>
+
+<para>
+This work relieves developers of the burden of duplicating graph-specific
+code when developing new tools (or extending existing ones) that
+need access to the package dependency graph.  By providing a generic
+infrastructure to support such tools, DebGraph enables tool developers
+(and others in the community) to focus on the issue at hand without
+becoming swamped with low-level details.
+</para>
+</chapter>
+
+<chapter id="getting">
+<title>Getting DebGraph</title>
+<para>
+The latest developmental code for DebGraph is kept in a Subversion
+repository and can be fetched with the following command:
+</para>
+
+<para>
+<computeroutput>
+svn co https://debian.semistable.com/svn/debgraph
+</computeroutput>
+</para>
+
+<para>
+To compile the newly fetched source, a simple <emphasis>make</emphasis> 
+should do the trick.
+</para>
+</chapter>
+
+<chapter id="using">
+<title>Using DebGraph</title>
+<sect1 id="startingup">
+<title>Starting the command line interface</title>
+<para>
+When <emphasis>debgraph_cli</emphasis> is launched, it will display a Lua
+prompt similar to the following:
+</para>
+
+<para>
+<literallayout>Lua 5.1.3  Copyright (C) 1994-2008 Lua.org, PUC-Rio
+debgraph version 0.1.1
+></literallayout>
+</para>
+</sect1>
+
+<sect1 id="loadingpackages">
+<title>Loading package indices</title>
+<para>
+At this point, <emphasis>debgraph_cli</emphasis> has loaded the
+<emphasis>debgraph</emphasis> libraries and is ready to be used.  The
+next task is to import some <ulink url="http://packages.debian.org">Package 
+files</ulink> so that we have some data to analyze.
+
+FIXME: Loading package procedure
+</para>
+
+<para>
+The package files that we loaded above become part of a single graph
+<emphasis>g</emphasis> that is discussed in the next section.
+</para>
+</sect1>
+
+<sect1 id="mothergraph">
+<title>The mother graph</title>
+<para>
+All <emphasis>debgraph</emphasis> objects begin as components of a single
+graph -- the mother graph, or <emphasis>g</emphasis>.  This variable
+is available automatically after <emphasis>LoadPackages</emphasis>
+has been called.  Naturally, the first operator that is executed must
+do its work on <emphasis>g</emphasis> in order to obtain a useful result.
+</para>
+
+<para>
+In the following example, we find dependency cycles in the nodes of 
+<emphasis>g</emphasis> that are in the <quote>unstable</quote> distribution.
+
+<example>
+<title>Finding cycles in <emphasis>g</emphasis></title>
+<programlisting>> components = FindCycles(g, "Release:unstable")
+> print(#components)
+58</programlisting>
+</example>
+
+Further examples of this operator (and the others) are presented in the next 
+section.
+</para>
+</sect1>
+</chapter>
+
+<chapter id="graphoperators">
+<title>Graph Operators</title>
+<sect1 id="overview">
+<title>Overview</title>
+<para>
+In this chapter, we describe the purpose and operation of each graph
+operator.  Each operator performs analysis on a graph, assembles a new
+graph (or set of graphs) based on that analysis, and returns the result
+for further analysis.
+</para>
+</sect1>
+
+<sect1 id="difference">
+<title>Difference Operator</title>
+<para>
+<funcsynopsis>
+<funcprototype>
+<funcdef>Graph <function>Difference</function></funcdef>
+	<paramdef>Graph <parameter>graph1</parameter></paramdef>
+	<paramdef>Graph <parameter>graph2</parameter></paramdef>
+</funcprototype>
+</funcsynopsis>
+
+The <emphasis>Difference</emphasis> operator performs a simple set
+subtraction.  If <emphasis>G1</emphasis> and <emphasis>G2</emphasis>
+are graphs, then <emphasis>Difference(G1, G2)</emphasis> returns a new
+graph containing all nodes (packages) that are in <emphasis>S1</emphasis>
+but NOT in <emphasis>S2</emphasis>, as one would expect.
+</para>
+</sect1>
+
+<sect1 id="filter">
+<title>Filter Operator</title>
+<para>
+<funcsynopsis>
+<funcprototype>
+<funcdef>Graph <function>Filter</function></funcdef>
+	<paramdef>Graph <parameter>g</parameter></paramdef>
+	<paramdef>string <parameter>property_name</parameter></paramdef>
+	<paramdef>string <parameter>property_value</parameter></paramdef>
+</funcprototype>
+</funcsynopsis>
+
+The <emphasis>Filter</emphasis> operator enables searching for nodes
+(packages) by their properties (name, version, maintainer, etc).
+</para>
+</sect1>
+
+<sect1 id="findcycles">
+<title>FindCycles Operator</title>
+<para>
+<funcsynopsis>
+<funcprototype>
+<funcdef>Graph <function>FindCycles</function></funcdef>
+	<paramdef>Graph <parameter>g</parameter></paramdef>
+</funcprototype>
+</funcsynopsis>
+
+The <emphasis>FindCycles</emphasis> operator locates all strongly
+connected components (for our purposes we can refer to these simply as
+<emphasis>cycles</emphasis>) in a graph <emphasis>g</emphasis>.  A
+starting node for the search is chosen arbitrarily.
+
+<funcsynopsis>
+<funcprototype>
+<funcdef>Graph <function>FindCycles</function></funcdef>
+	<paramdef>Graph <parameter>g</parameter></paramdef>
+	<paramdef>Node <parameter>starting_node</parameter></paramdef>
+</funcprototype>
+</funcsynopsis>
+
+In this form, <emphasis>FindCycles</emphasis> returns a set of
+components (properly, a set of sets of nodes), beginning its search
+at <emphasis>starting_node</emphasis>.  It is often helpful to use a
+release node (e.g., "Release:testing") as a starting point.
+
+<funcsynopsis>
+<funcprototype>
+<funcdef>Graph <function>FindCycles</function></funcdef>
+	<paramdef>Graph <parameter>g</parameter></paramdef>
+	<paramdef>String[] <parameter>allowed_edge_types</parameter></paramdef>
+	<paramdef>Node <parameter>starting_node</parameter></paramdef>
+</funcprototype>
+</funcsynopsis>
+
+In this form, <emphasis>FindCycles</emphasis> takes a set of edge types
+(strings) as its second parameter, enabling the user to specify the
+types of edges ("DEPENDS", "HAS_VERSION", etc) that should be followed
+while looking for cycles.
+</para>
+</sect1>
+
+<sect1 id="finddeps">
+<title>FindDeps Operator</title>
+<para>
+<funcsynopsis>
+<funcprototype>
+<funcdef>Graph <function>FindDeps</function></funcdef>
+	<paramdef>Graph <parameter>g</parameter></paramdef>
+	<paramdef>Node <parameter>n</parameter></paramdef>
+</funcprototype>
+</funcsynopsis>
+
+The <emphasis>FindDeps</emphasis> operator locates the nodes (packages)
+that <emphasis>n</emphasis> depends on.  In other words, it returns a
+graph with every package <emphasis>p</emphasis> for which there is a
+dependency edge <emphasis>(n,p)</emphasis> in <emphasis>g</emphasis>.
+This continues recursively until a package with zero dependencies is
+reached, thus providing an exhaustive list of packages needed in order
+to install and use <emphasis>n</emphasis>.
+</para>
+</sect1>
+
+<sect1 id="findreversedeps">
+<title>FindRevDeps Operator</title>
+<para>
+<funcsynopsis>
+<funcprototype>
+<funcdef>Graph <function>FindRevDeps</function></funcdef>
+	<paramdef>Graph <parameter>g</parameter></paramdef>
+	<paramdef>Node <parameter>n</parameter></paramdef>
+</funcprototype>
+</funcsynopsis>
+
+The <emphasis>FindRevDeps</emphasis> operator locates the nodes (packages)
+that depend on <emphasis>n</emphasis>.  In other words, it returns a
+graph with every package <emphasis>p</emphasis> for which there is a
+dependency edge <emphasis>(p,n)</emphasis> in <emphasis>g</emphasis>.
+This continues recursively until a package with zero reverse dependencies
+is reached, thus providing an exhaustive list of packages whose use and
+installation depends on <emphasis>n</emphasis>.
+</para>
+</sect1>
+
+<sect1 id="intersection">
+<title>Intersection Operator</title>
+<para>
+<funcsynopsis>
+<funcprototype>
+<funcdef>Graph <function>Intersection</function></funcdef>
+	<paramdef>Graph <parameter>graph1</parameter></paramdef>
+	<paramdef>Graph <parameter>graph2</parameter></paramdef>
+</funcprototype>
+</funcsynopsis>
+
+The <emphasis>Intersection</emphasis> operator performs a set intersect
+operation.  If <emphasis>G1</emphasis> and <emphasis>G2</emphasis> are
+graphs, then <emphasis>Intersection(G1, G2)</emphasis> returns a new
+graph containing the nodes that are found in <emphasis>G1</emphasis> AND
+<emphasis>G2</emphasis>.
+</para>
+</sect1>
+
+<sect1 id="union">
+<title>Union Operator</title>
+<para>
+<funcsynopsis>
+<funcprototype>
+<funcdef>Graph <function>Union</function></funcdef>
+	<paramdef>Graph <parameter>graph1</parameter></paramdef>
+	<paramdef>Graph <parameter>graph2</parameter></paramdef>
+</funcprototype>
+</funcsynopsis>
+
+The <emphasis>Union</emphasis> operator performs a set union
+operation.  If <emphasis>G1</emphasis> and <emphasis>G2</emphasis> are
+graphs, then <emphasis>Union(G1, G2)</emphasis> returns a new
+graph containing the nodes that are found in <emphasis>G1</emphasis> OR
+<emphasis>G2</emphasis> (inclusive).
+</para>
+</sect1>
+
+<sect1 id="xor">
+<title>XOR Operator</title>
+<para>
+<funcsynopsis>
+<funcprototype>
+<funcdef>Graph <function>XOR</function></funcdef>
+	<paramdef>Graph <parameter>graph1</parameter></paramdef>
+	<paramdef>Graph <parameter>graph2</parameter></paramdef>
+</funcprototype>
+</funcsynopsis>
+
+The <emphasis>XOR</emphasis> operator performs a set union operation.
+If <emphasis>G1</emphasis> and <emphasis>G2</emphasis> are graphs,
+then <emphasis>XOR(G1, G2)</emphasis> returns a new graph containing
+the nodes that are found in either <emphasis>G1</emphasis> OR
+<emphasis>G2</emphasis> but NOT both.
+</para>
+</sect1>
+</chapter>
+
+<chapter id="examples">
+<title>Examples</title>
+<para>
+</para>
+</chapter>
+</book>
