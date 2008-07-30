@@ -22,26 +22,3 @@ this way.
 nulltest and structure are existing "tests", structure being the only usefull
 one. it does generate a graph of the connections between different types. This
 is to the actual graph what a class diagram is to an object structure.
-
-graphwalker is an early attempt to write a simple state-machine operator that 
-can be used to find specific nodes. This should be removed, as well as the
-dfs/low/mark things in node (which were used to find cycles in another version
-of the code).
-
-General Plan
-------------
-The idea is to define a set of operators that can be used to work on the graph.
-They would return sets of nodes (perhaps sometimes sets of sets? think
-cycles...), and be able to be used together. For performance reasons it would be
-cool if these could work like iterators, and not first create all the sets in
-memory.
-Examples:
-- find node by id
-- all nodes
-- filter by type or property
-- state machine like operators (e.g. follow edges of type X and terminate on
-  nodes of type Y)
-- union, intersect, complement
-- ...
-
-Then sketch up a simple language that makes using these operators easier

@@ -13,13 +13,13 @@ change during the work.
   liking. please note that it might be a good idea to have a deep pipeline as
   you might need to wait on people every now and then. larger items or sets of
   smaller ones should have a time budget associated
-+ find potential problems that we need to write tests for: read through policy,
+- find potential problems that we need to write tests for: read through policy,
   check other tools and talk to people who might have ideas
 	+ Verify that nothing depends on Essential packages
 	+ Look for loops among Essential packages (from vorlon on NMTask list)
 	+ Verify that a runtime library's version matches the version of its
 	  corresponding -dev package
-+ talk to people about debgraph, they might have input. this is also important
+- talk to people about debgraph, they might have input. this is also important
   because we need to "sell" this a little bit
 	* Completed by 10 June
 	+ Bill Allombert would like to be able to check upgrade paths
@@ -31,10 +31,10 @@ change during the work.
 			n is not too far from Card(Etch)/1000
 		* Then install each set S_i (with dependencies) and upgrade it
 		  to Lenny
-+ based on these findings, define the set of operators, their interface and what
+- based on these findings, define the set of operators, their interface and what
   types of things they return. talk over with mentor.  make a decision
   on the set of operators to implement by 15 June.
-	+ Define generic interface
+	- Define generic interface
 	* Possible operators
 		(Essential)
 		- Count nodes in a graph (implemented as Graph member function)
@@ -44,9 +44,12 @@ change during the work.
 		- Compute difference of two sets of nodes
 		- Find/filter nodes based on property values
 		(Useful)
-		+ State machine to track traversal info (cf. next two items)
+		+ State machine to track traversal info (cf. next two items):
+		  follow edges of type X and terminate on nodes of type Y
 		- Recursively find nodes' dependencies
+			+ Do not include the "source" node(s) in the results
 		- Recursively find nodes' dependents (traverse edges in reverse)
+			+ Do not include the "source" node(s) in the results
 		- Merge ("Canonify"?) subgraphs (or maybe merge sets of nodes into 
 		  a single node in order to simulate a virtual package?)
 		    * Implemented as mergePackageVersions() member of DGOperator
@@ -59,18 +62,57 @@ change during the work.
 			+ Return a useful result (set of Graphs?)
 		(Exotic)
 		+ TBD
-+ implement them. this is a "milestone delivery", to be completed by 10
+- implement them. this is a "milestone delivery", to be completed by 10
   July
 + perhaps one or more operators will be quite complicated and require a small
   parser (e.g. something like a state machine), so be prepared for the work
-+ sketch up a language that can be used to query the graph. talk over with
+- sketch up a language that can be used to query the graph. talk over with
   mentor
-	+ Support for universal/existential quantifiers (e.g., for all
-	  packages that conflict, perform action X) 
-+ implement it. "milestone delivery"
+  	- Planning to use Lua as our embedded interpreter
+	- Need to write glue code that exports debgraph functions to Lua
+	- Functions to export
+		- loadPackages(dir): process all 'Packages' files in 'dir'
+		- getNodes(Graph): return an array of nodes in the graph
+		- getProperty(Node, Property): return a Node property
+		- each operator can be instantiated and run
+			* e.g., Union() returns a graph
+			* these can be combined: Union(XOR(G1, G2), Intersect(G3, G4))
+	- Glue details
+		* OO is not really an option due to excessive duplication.  Each
+		  "object" carries a copy of its methods, so any benefits of OO
+		  would come with a significant memory hit
+		- Need to maintain linkage between graphs in Lua and their
+		  respective instance in C
+		- Error facility to report problems back to Lua (e.g. "node not found")
+	* EX (using standalone Lua interpreter):
+		./debgraph_cli
+		> loadPackages()
+		[...]
+		> rootNode = getNodes(Filter(id="RELEASE_UNSTABLE"))[0]
+		> components = FindCycles(rootNode, {"CONTAINS","DEPENDS", "PREDEPENDS"})
+		> for comp in components do
+		    print("{");
+			for node in comp do
+			  print(getProperty(node, "Name"))
+			  print(" ")
+			end
+			print("\n")
+		  end <ENTER>
+		{ libc6, libgcc }
+	* EX (Filter)
+		[...]
+		-- For one criterion:
+		> Filter(g, "Section", "EQUALS", "foo")
+		-- For finding the union of several criteria:
+		> Filter(g, "AND", {{"Section", "EQUALS", "foo"}, {"Maintainer", "NEQUALS", "Julian"}})
+
+- implement it. "milestone delivery"
 + small pdf text or presentation that explains debgraph to a potential user (who
   might need convincing)
 + write test suite for operators and query language with reasonable code 
   coverage
++ improve performance
+	+ profile the codebase to find duplicated or unnecessary work
+	+ use a hash instead of a map for storing nodes: lookup O(1) vs. O(log n)
 + write user and developer documentation for the graph operators,
   language, etc.  to be completed by 11 August
