@@ -161,6 +161,21 @@ int pushNodeNamesAsArray(lua_State *L, Graph *g) {
 	return 1;
 }
 
+/* Free an object whose handle is passed from Lua */
+static int freeDGObject(lua_State *L) {
+	Graph *g = (Graph *)popEntity(L);
+	if (g == 0) {
+		lua_pushstring(L, "Could not get nodes from graph");
+		lua_error(L);
+	} else if (!memAcct->hasReference(g)) {
+		lua_pushstring(L, "Invalid pointer");
+		lua_error(L);
+	}
+	memAcct->deleteReference(g);
+	delete g;
+	return 0;
+}
+
 static int getNodeNames(lua_State *L) {
 	Graph *g = (Graph *)popEntity(L);
 	if (g == 0) {
@@ -546,6 +561,7 @@ int luaopen_libdebgraph(lua_State *L) {
 	lua_register(L, "Union", operUnion);
 	lua_register(L, "XOR", operXOR);
 	/* support routines */
+	lua_register(L, "Free", freeDGObject);
 	lua_register(L, "GetNodeNames", getNodeNames);
 	lua_register(L, "GetNodes", getNodes);
 	lua_register(L, "GetProperty", getProperty);
