@@ -107,8 +107,17 @@ At this point, <emphasis>debgraph_cli</emphasis> has loaded the
 <emphasis>debgraph</emphasis> libraries and is ready to be used.  The
 next task is to import some <ulink url="http://packages.debian.org">Package 
 files</ulink> so that we have some data to analyze.
+</para>
 
-FIXME: Loading package procedure
+<para>
+FIXME: Getting updated package files.
+</para>
+
+<para>
+The following command parses package information from the
+<emphasis>cache</emphasis> directory.
+
+<literallayout>LoadPackages('cache')</literallayout>
 </para>
 
 <para>

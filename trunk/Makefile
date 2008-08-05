@@ -5,7 +5,7 @@ MAKE=make
 CXX=g++
 TARGET=debgraph
 DEPMAKER=$(shell which fastdep || echo "$(CXX) -MM")
-INSTALL=/usr/bin/install -c
+INSTALL=/usr/bin/install
 
 bindir=/usr/bin
 libdir=/usr/lib
@@ -30,9 +30,8 @@ $(TARGET): $(OBJECTS)
 clean:
 	rm -f *.o
 	rm -f $(TARGET)
-	$(MAKE) -C tests clean
-	$(MAKE) -C lua clean
 	rm -f .depend
+	$(MAKE) -C doc clean
 	$(MAKE) -C lua clean
 	$(MAKE) -C tests clean
 
@@ -44,7 +43,8 @@ install:
 	$(INSTALL) -s -m 755 lua/debgraph_cli $(bindir)/debgraph_cli
 	$(INSTALL) -m 755 lua/libdebgraph.so $(libdir)/libdebgraph.so.0
 	@ln -f -s $(libdir)/libdebgraph.so.0 $(libdir)/libdebgraph.so
-	# TODO: Man page and other docs
+	$(MAKE) -C doc html
+	$(INSTALL) -D -m 755 doc/html/* -t /usr/share/doc/debgraph
 
 lua: $(TARGET)
 	$(MAKE) -C lua
