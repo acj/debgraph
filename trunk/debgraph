@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+# This is a wrapper script for debgraph, a tool that provides a powerful
+# interface for analyzing dependencies among Debian packages.  In
+# addition to invoking the debgraph command line tool (debgraph_cli),
+# this script performs convenient setup and cleanup tasks.
+for s in `find /usr/share/debgraph/scripts -name "S*" | sort`; do $s; done
+debgraph_cli
+for s in `find /usr/share/debgraph/scripts -name "F*" | sort`; do $s; done

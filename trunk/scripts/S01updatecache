@@ -1,13 +1,36 @@
 #!/bin/sh
+#
+# This script fetches a copy of the Packages files for a given
+# Debian Linux distribution (e.g., "unstable").
+#
+# Usage:
+# 	S01updatecache [MIRROR HOST] [DIST] [CACHE DIRECTORY]
+RSYNC_SERVER=ftp.us.debian.org
+TARGET_DIST=unstable
+TARGET_DIR=/usr/share/debgraph/cache
 
 if [ $DEBGRAPH_NOUPDATE ]; then
 	echo "Not updating cache!"
 	exit 0;
 fi
 
-echo "Updating cache..."
+if [ -n "$1" ]; then
+	echo "Using server '$1'"
+	RSYNC_SERVER=$1
+fi
 
-if [[ -e cache/trace ]]; then
+if [ -n "$2" ]; then
+	echo "Using distribution '$2'"
+	TARGET_DIST=$2
+fi
+
+if [ -n "$3" ]; then
+	echo "Using directory '$3'"
+	TARGET_DIR=$3
+	mkdir -p $TARGET_DIR
+fi
+
+if [[ -e $TARGET_DIR/trace ]]; then
 	cachedate=`cat cache/trace | sed -e "s/  / /" | cut -d " " -f 1-3`
 	now=`date | sed -e "s/  / /" | cut -d " " -f 1-3`
 	if [[ "$cachedate" = "$now" ]]; then
@@ -15,20 +38,22 @@ if [[ -e cache/trace ]]; then
 	fi
 fi
 
-rsync ftp2.de.debian.org::debian/project/trace/ftp-master.debian.org cache/trace
+echo "Updating cache..."
 
-rsync --recursive --delete --exclude "debian-installer/" --include  "*/" --include "Packages.gz" --include "Sources.gz" --include "Release" --exclude "*" ftp2.de.debian.org::debian/dists/unstable/ cache/unstable > /dev/null
+rsync $RSYNC_SERVER::debian/project/trace/ftp-master.debian.org $TARGET_DIR/trace
+
+rsync --recursive --delete --exclude "debian-installer/" --include  "*/" --include "Packages.gz" --include "Sources.gz" --include "Release" --exclude "*" $RSYNC_SERVER::debian/dists/$TARGET_DIST/ $TARGET_DIR/$TARGET_DIST > /dev/null
 
 # remove empty directories
 for ((i=0;i<=15;i+=1)); do
-	find cache -empty -exec rmdir '{}' \; 2> /dev/null
+	find $TARGET_DIR -empty -exec rmdir '{}' \; 2> /dev/null
 done
 
 # uncompress, but leave compressed files in place
-for gzfile in `find cache -name "*.gz"`; do
+for gzfile in `find $TARGET_DIR -name "*.gz"`; do
 	file=`echo $gzfile | sed -e s/\.gz//`;
 	zcat $gzfile > $file
 done
-#find cache -name "*.gz" -exec gunzip -f '{}' \;
+#find $TARGET_DIR -name "*.gz" -exec gunzip -f '{}' \;
 
-echo $now > cache/trace
+echo $now > $TARGET_DIR/trace

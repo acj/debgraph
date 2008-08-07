@@ -3,7 +3,7 @@ LIBS=
 LDFLAGS=
 MAKE=make
 CXX=g++
-TARGET=debgraph
+TARGET=debgraph_test
 DEPMAKER=$(shell which fastdep || echo "$(CXX) -MM")
 INSTALL=/usr/bin/install
 
@@ -40,11 +40,15 @@ distclean: clean
 	-for s in `find scripts -name "C*" | grep -v "\.svn" | sort`; do $$s; done
 
 install:
+	$(INSTALL) -m 755 -d /usr/share/debgraph/cache
+	$(INSTALL) -m 755 -d /usr/share/debgraph/scripts
 	$(INSTALL) -s -m 755 lua/debgraph_cli $(bindir)/debgraph_cli
+	$(INSTALL) -m 755 debgraph $(bindir)/debgraph
 	$(INSTALL) -m 755 lua/libdebgraph.so $(libdir)/libdebgraph.so.0
 	@ln -f -s $(libdir)/libdebgraph.so.0 $(libdir)/libdebgraph.so
 	$(MAKE) -C doc html
 	$(INSTALL) -D -m 755 doc/html/* -t /usr/share/doc/debgraph
+	$(INSTALL) -m 755 -t /usr/share/debgraph/scripts scripts/{C*,S*,F*}
 
 lua: $(TARGET)
 	$(MAKE) -C lua
