@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <fstream>
 #include <string.h>
 #include <set>
 
@@ -132,6 +133,9 @@ void pushNodeAsTable(lua_State *L, Node *n) {
  */
 int pushNodesAsArray(lua_State *L, Graph *g) {
 	int idx = 1;
+	// Label this array as a Graph so that it can be freed from Lua
+	setIntField(L, "__ptr", (size_t)g);
+	setStringField(L, "__dgtype", "graph");
 	for (GraphIterator i = g->begin(); i != g->end(); ++i) {
 		lua_pushnumber(L, idx);
 		pushNodeAsTable(L, *i);
@@ -241,6 +245,28 @@ static int showVersion(lua_State *L) {
 	sprintf(ver, "debgraph version %s", DEBGRAPH_VERSION);
 	lua_pushstring(L, ver);
 	return 1;
+}
+
+static int toGraphviz(lua_State *L) {
+	if (lua_type(L, -1) == LUA_TSTRING) {
+		// Write the Graphviz data to a file
+		const char *outFilename = lua_tostring(L, -1);
+		lua_pop(L, 1);
+		Graph *g1 = (Graph *)popEntity(L);
+		ofstream outFile(outFilename);
+		if (!outFile) {
+			fprintf(stderr, "Could not open file\n");
+		}
+		outFile << g1->toGraphviz() << endl;
+		outFile.close();
+		return 0;
+	}
+	else {
+		// Return the Graphviz data to Lua
+		Graph *g1 = (Graph *)popEntity(L);
+		lua_pushstring(L, g1->toGraphviz().c_str());
+		return 1;
+	}
 }
 
 static int operDifference(lua_State *L) {
@@ -568,6 +594,7 @@ int luaopen_libdebgraph(lua_State *L) {
 	lua_register(L, "LoadPackages", loadPackages);
 	lua_register(L, "ShowVersion", showVersion);
 	lua_register(L, "StackDump", stackDump);
+	lua_register(L, "ToGraphviz", toGraphviz);
 	return 1;
 }
 }
