@@ -77,6 +77,9 @@ change during the work.
 		- each operator can be instantiated and run
 			* e.g., Union() returns a graph
 			* these can be combined: Union(XOR(G1, G2), Intersect(G3, G4))
+	+ Utility functions
+		- StackDump: produce a readable representation of the Lua stack
+		+ ObjectDump: produce a readable representation of a Lua table/object
 	- Glue details
 		* OO is not really an option due to excessive duplication.  Each
 		  "object" carries a copy of its methods, so any benefits of OO
@@ -85,15 +88,15 @@ change during the work.
 		  respective instance in C
 		- Error facility to report problems back to Lua (e.g. "node not found")
 	* EX (using standalone Lua interpreter):
-		./debgraph_cli
-		> loadPackages()
+		debgraph
+		> LoadPackages('cache')
 		[...]
-		> rootNode = getNodes(Filter(id="RELEASE_UNSTABLE"))[0]
-		> components = FindCycles(rootNode, {"CONTAINS","DEPENDS", "PREDEPENDS"})
+		> rootNode = GetNodes(Filter(id="RELEASE_UNSTABLE"))[0]
+		> components = FindCycles(rootNode, {"CONTAINS","DEPENDS", "PREDEPENDS"}, "Release:unstable")
 		> for comp in components do
 		    print("{");
 			for node in comp do
-			  print(getProperty(node, "Name"))
+			  print(GetProperty(node, "Name"))
 			  print(" ")
 			end
 			print("\n")
@@ -109,10 +112,10 @@ change during the work.
 - implement it. "milestone delivery"
 + small pdf text or presentation that explains debgraph to a potential user (who
   might need convincing)
-+ write test suite for operators and query language with reasonable code 
+- write test suite for operators and query language with reasonable code 
   coverage
 + improve performance
 	+ profile the codebase to find duplicated or unnecessary work
 	+ use a hash instead of a map for storing nodes: lookup O(1) vs. O(log n)
-+ write user and developer documentation for the graph operators,
+- write user and developer documentation for the graph operators,
   language, etc.  to be completed by 11 August

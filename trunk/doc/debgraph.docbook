@@ -86,6 +86,49 @@ should do the trick.
 
 <chapter id="using">
 <title>Using DebGraph</title>
+<sect1 id="types">
+<title>Object Types</title>
+<para>
+In this section, we provide an overview of the types of objects that are
+encountered during a <emphasis>debgraph</emphasis> session.
+
+<sect2 id="types_node">
+<title>Node</title>
+<para>
+<emphasis>Node</emphasis> objects are the bread and butter of
+<emphasis>debgraph</emphasis>.  While they typically represent packages,
+<emphasis>Node</emphasis>s are also used to represent package names,
+logical disjunctions (package X "OR" package Y), as well as abstractions
+such as components or releases that gather packages into larger groups.
+<emphasis>Node</emphasis>s have <emphasis>properties</emphasis> that 
+provide detailed information about the package that each 
+<emphasis>Node</emphasis> represents, including its name(s), version,
+and maintainer.  Futher information is provided by linking
+<emphasis>Node</emphasis> objects together with
+<emphasis>edges</emphasis> to represent complex relationships.  These
+edges can illustrate dependencies, conflicts, and other rich
+inter-connections among vast sets of packages.
+</para>
+</sect2>
+
+<sect2 id="types_graph">
+<title>Graph</title>
+<para>
+While a <emphasis>Graph</emphasis> primarily plays the role of a container, 
+it is nonetheless important to the usability and coherence of 
+<emphasis>debgraph</emphasis>.  To borrow a definition from Graph
+theory, a <emphasis>Graph</emphasis> is a set of
+<emphasis>Nodes</emphasis> and a set of <emphasis>edges</emphasis>.  For
+our purposes, it is enough to remember that a <emphasis>Graph</emphasis>
+contains a set of <emphasis>Node</emphasis> objects that might be of
+interest, particularly if the <emphasis>Graph</emphasis> is the result
+of some operation that we have performed.
+</para>
+</sect2>
+
+</para>
+</sect1>
+
 <sect1 id="startingup">
 <title>Starting the command line interface</title>
 <para>
@@ -110,12 +153,17 @@ files</ulink> so that we have some data to analyze.
 </para>
 
 <para>
-FIXME: Getting updated package files.
+N.B.: If package information is not yet available, it can be fetched from a 
+Debian mirror using the script <emphasis>S01updatecache</emphasis>
+provided in the <emphasis>debgraph</emphasis> distribution.  Usage notes
+are provided within the script file.
 </para>
 
 <para>
-The following command parses package information from the
-<emphasis>cache</emphasis> directory.
+At this point, we assume that package information has been fetched and
+is available in a directory named <emphasis>cache</emphasis> in the
+current working directory.  We can now instruct the Lua interpreter to
+parse the package information, as follows:
 
 <literallayout>LoadPackages('cache')</literallayout>
 </para>
@@ -142,15 +190,60 @@ In the following example, we find dependency cycles in the nodes of
 
 <example>
 <title>Finding cycles in <emphasis>g</emphasis></title>
-<programlisting>> components = FindCycles(g, "Release:unstable")
+<programlisting> > components = FindCycles(g, "Release:unstable")
 > print(#components)
 58</programlisting>
 </example>
 
-Further examples of this operator (and the others) are presented in the next 
-section.
+Further examples that utilize this operator (and the others) are presented 
+in the next section.  
 </para>
 </sect1>
+
+<sect1 id="exportedfunctions">
+<title>Functions available in Lua</title>
+<para>
+The following functions are exported to Lua from the
+core <emphasis>debgraph</emphasis> library.  The types of return and
+parameter values should be understood as Lua (not C) types.
+
+<funcsynopsis>
+<funcprototype>
+<funcdef>void <function>LoadPackages</function></funcdef>
+	<paramdef>string <parameter>cache_directory</parameter></paramdef>
+</funcprototype>
+</funcsynopsis>
+
+<!-- FIXME: Summary -->
+
+<funcsynopsis>
+<funcprototype>
+<funcdef>table <function>GetNodes</function></funcdef>
+	<paramdef>Graph <parameter>g1</parameter></paramdef>
+</funcprototype>
+</funcsynopsis>
+
+<!-- FIXME: Summary -->
+
+<funcsynopsis>
+<funcprototype>
+<funcdef>table <function>GetNodeNames</function></funcdef>
+	<paramdef>Graph <parameter>g1</parameter></paramdef>
+</funcprototype>
+</funcsynopsis>
+
+<!-- FIXME: Summary -->
+
+<funcsynopsis>
+<funcprototype>
+<funcdef>string <function>GetProperty</function></funcdef>
+	<paramdef>Node <parameter>n</parameter></paramdef>
+	<paramdef>string <parameter>property_name</parameter></paramdef>
+</funcprototype>
+</funcsynopsis>
+
+<!-- FIXME: Summary -->
+
 </chapter>
 
 <chapter id="graphoperators">
@@ -348,6 +441,47 @@ the nodes that are found in either <emphasis>G1</emphasis> OR
 <chapter id="examples">
 <title>Examples</title>
 <para>
+</para>
+</chapter>
+
+<chapter id="luacintegration">
+<title>Lua/C Integration Details</title>
+<sect1 id="luacintegration_overview">
+<title>Overview</title>
+<para>
+This section provides some insight into the machinery that moves data
+between <emphasis>debgraph</emphasis>'s core C library and the Lua
+interpreter that is frequently used to drive it.  Among other things, we
+describe the organization of the Lua data structures that represent
+native <emphasis>debgraph</emphasis> objects.
+
+The complex Lua data type used most often is called a
+<emphasis>table</emphasis>.  Fundamentally, this is an array that can
+take on methods and properties of its own, much like a
+Javascript object.  Every native <emphasis>debgraph</emphasis> object
+(Graph, Node, etc.) that is passed to Lua is expressed as a
+<emphasis>table<emphasis>.  We discuss each of these objects and their
+structures in turn. 
+</sect1>
+
+<sect2 id="luacintegration_node">
+<title>Node</title>
+<para>
+FIXME: Next
+</para>
+</sect2>
+
+<sect2 id="luacintegration_graph">
+<title>Graph</title>
+<para>
+The <emphasis>Graph</emphasis> is the most popular return type of the
+graph operators supported by <emphasis>debgraph</emphasis>.  It consists
+of a set of <emphasis>Node</emphasis> instances.
+
+FIXME: third
+</para>
+</sect2>
+
 </para>
 </chapter>
 </book>
