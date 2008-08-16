@@ -91,6 +91,7 @@ should do the trick.
 <para>
 In this section, we provide an overview of the types of objects that are
 encountered during a <emphasis>debgraph</emphasis> session.
+</para>
 
 <sect2 id="types_node">
 <title>Node</title>
@@ -126,7 +127,6 @@ of some operation that we have performed.
 </para>
 </sect2>
 
-</para>
 </sect1>
 
 <sect1 id="startingup">
@@ -206,6 +206,7 @@ in the next section.
 The following functions are exported to Lua from the
 core <emphasis>debgraph</emphasis> library.  The types of return and
 parameter values should be understood as Lua (not C) types.
+</para>
 
 <funcsynopsis>
 <funcprototype>
@@ -243,6 +244,7 @@ parameter values should be understood as Lua (not C) types.
 </funcsynopsis>
 
 <!-- FIXME: Summary -->
+</sect1>
 
 </chapter>
 
@@ -460,14 +462,31 @@ The complex Lua data type used most often is called a
 take on methods and properties of its own, much like a
 Javascript object.  Every native <emphasis>debgraph</emphasis> object
 (Graph, Node, etc.) that is passed to Lua is expressed as a
-<emphasis>table<emphasis>.  We discuss each of these objects and their
+<emphasis>table</emphasis>.  We discuss each of these objects and their
 structures in turn. 
-</sect1>
+</para>
 
 <sect2 id="luacintegration_node">
 <title>Node</title>
 <para>
-FIXME: Next
+As described <link linkend="types_node">above</link>, 
+<emphasis>Node</emphasis> objects represent packages and pseudo-packages.  
+Each <emphasis>Node</emphasis> is represented by a Lua table.  The internal
+details of this table deal mostly with memory accounting, so it is safe
+to treat a <emphasis>Node</emphasis> as an opaque object when
+manipulating it from Lua.  For completeness, however, we will document
+the table members here.
+</para>
+
+<para>
+Each <emphasis>Node</emphasis> instance has at least two members:
+<emphasis>__dgtype</emphasis> and <emphasis>__ptr</emphasis>.
+<emphasis>__dgtype</emphasis> is a string that can take on values of
+`graph' or `node', thus indicating the type of object that the table
+represents.  <emphasis>__ptr</emphasis>, on the other hand, is an
+integer (pointer) that stores the memory address of the 
+<emphasis>Node</emphasis> object (created by the C library) being 
+represented by the table.
 </para>
 </sect2>
 
@@ -476,12 +495,16 @@ FIXME: Next
 <para>
 The <emphasis>Graph</emphasis> is the most popular return type of the
 graph operators supported by <emphasis>debgraph</emphasis>.  It consists
-of a set of <emphasis>Node</emphasis> instances.
-
-FIXME: third
+of a set of <emphasis>Node</emphasis> instances.  In the C library, each
+<emphasis>Graph</emphasis> is represented by an instance of the
+<emphasis>Graph</emphasis> class.  In Lua, this structure is represented
+by a table.  The table shares the same members as
+<emphasis>Node</emphasis> (i.e., `__dgtype' and `__ptr'), and its
+constituent <emphasis>Node</emphasis> instances are stored naturally as
+elements of the table.
 </para>
 </sect2>
+</sect1>
 
-</para>
 </chapter>
 </book>

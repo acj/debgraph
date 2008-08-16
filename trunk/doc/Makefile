@@ -2,7 +2,7 @@ DOCBOOK_HTML=docbook2html
 DOCBOOK_PDF=docbook2pdf
 DOCBOOK_MAN=docbook-to-man
 
-all: html manpage pdf
+all: html pdf #manpage
 
 clean:
 	rm -rf html manpage pdf
