@@ -110,17 +110,17 @@ Entity* popEntity(lua_State *L) {
 	return 0;
 }
 
-/* Push a Graph onto the stack as a Lua table */
+/* Push a Graph onto the stack as a Lua table.  Assumes that a table has
+ * been pushed onto the stack previously. */
 void pushGraphAsTable(lua_State *L, Graph *g) {
-	lua_newtable(L);
 	setIntField(L, "__size", g->size());	/* number of nodes */
 	setIntField(L, "__ptr", (size_t)g);		/* pointer to Graph object */
 	setStringField(L, "__dgtype", "graph");
 }
 
-/* Push a Node onto the stack as a Lua table */
+/* Push a Node onto the stack as a Lua table.  Assumes that a table has
+ * been pushed onto the stack previously. */
 void pushNodeAsTable(lua_State *L, Node *n) {
-	lua_newtable(L);
 	setIntField(L, "__ptr", (size_t)n);	/* pointer to Graph object */
 	setStringField(L, "__dgtype", "node");
 }
@@ -138,6 +138,7 @@ int pushNodesAsArray(lua_State *L, Graph *g) {
 	setStringField(L, "__dgtype", "graph");
 	for (GraphIterator i = g->begin(); i != g->end(); ++i) {
 		lua_pushnumber(L, idx);
+		lua_newtable(L);
 		pushNodeAsTable(L, *i);
 		lua_settable(L, -3);
 		++idx;
@@ -235,6 +236,7 @@ static int loadPackages(lua_State *L) {
 	lua_pop(L, 1);
 	DebianGraph *g = new DebianGraph(pkgPath);
 	memAcct->addReference(g);
+	lua_newtable(L);
 	pushGraphAsTable(L, g);
 	lua_setglobal(L, "g");
 	return 1;
@@ -278,6 +280,7 @@ static int operDifference(lua_State *L) {
 	else {
 		Difference *d = new Difference(*g1, *g2);
 		Graph &result = d->execute();
+		lua_newtable(L);
 		pushGraphAsTable(L, &result);
 		return 1;
 	}
@@ -360,6 +363,7 @@ static int operFilter(lua_State *L) {
 	}
 	Filter f = Filter(*g, fProperties, FILTER_OR);
 	Graph &result = f.execute();
+	lua_newtable(L);
 	pushGraphAsTable(L, &result);
 	return 1;
 }
@@ -457,7 +461,7 @@ static int operFindCycles(lua_State *L) {
 		lua_pushnumber(L, i);
 		lua_pushvalue(L, -2);
 		lua_settable(L, -4);
-		pushNodesAsArray(L, currentCycle);
+		pushGraphAsTable(L, currentCycle);
 		lua_pop(L, 1);
 	}
 	delete fc;
@@ -486,6 +490,7 @@ static int operFindDeps(lua_State *L) {
 	Node *n = g1->findNode(string(nodeName));
 	FindDeps *fDeps = new FindDeps(*g1, n);
 	Graph &result = fDeps->execute();
+	lua_newtable(L);
 	pushGraphAsTable(L, &result);
 	return 1;
 }
@@ -511,6 +516,7 @@ static int operFindReverseDeps(lua_State *L) {
 	Node *n = g1->findNode(string(nodeName));
 	FindReverseDeps *fRDeps = new FindReverseDeps(*g1, n);
 	Graph &result = fRDeps->execute();
+	lua_newtable(L);
 	pushGraphAsTable(L, &result);
 	return 1;
 }
@@ -524,6 +530,7 @@ static int operIntersection(lua_State *L) {
 	else {
 		Intersection *i = new Intersection(*g1, *g2);
 		Graph &result = i->execute();
+		lua_newtable(L);
 		pushGraphAsTable(L, &result);
 		return 1;
 	}
@@ -538,6 +545,7 @@ static int operUnion(lua_State *L) {
 	else {
 		Union *u = new Union(*g1, *g2);
 		Graph &result = u->execute();
+		lua_newtable(L);
 		pushGraphAsTable(L, &result);
 		return 1;
 	}
@@ -552,6 +560,7 @@ static int operXOR(lua_State *L) {
 	else {
 		XOR *x = new XOR(*g1, *g2);
 		Graph &result = x->execute();
+		lua_newtable(L);
 		pushGraphAsTable(L, &result);
 		return 1;
 	}
