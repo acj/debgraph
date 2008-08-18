@@ -31,7 +31,7 @@ if [ -n "$3" ]; then
 fi
 
 if [[ -e $TARGET_DIR/trace ]]; then
-	cachedate=`cat cache/trace | sed -e "s/  / /" | cut -d " " -f 1-3`
+	cachedate=`cat $TARGET_DIR/trace | sed -e "s/  / /" | cut -d " " -f 1-3`
 	now=`date | sed -e "s/  / /" | cut -d " " -f 1-3`
 	if [[ "$cachedate" = "$now" ]]; then
 		exit 0;

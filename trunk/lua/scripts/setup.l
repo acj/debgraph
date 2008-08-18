@@ -9,7 +9,18 @@ function ObjectDump (obj)
 end
 
 -- Basic setup: load the shared library and the contents of "cache"
+if #arg > 0 then
+	-- Use the given path as our output directory
+	_PATH = arg[1]
+else
+	_PATH = '.'
+end
 libdg = package.loadlib('libdebgraph.so', 'luaopen_libdebgraph')
 libdg()
 print(ShowVersion())
-LoadPackages('cache')
+LoadPackages(_PATH .. '/cache')
+
+-- Run any scripts that are available
+for i in io.popen('ls /usr/share/debgraph/tests/*.l'):lines() do
+	dofile(i)
+end

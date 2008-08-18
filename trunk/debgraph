@@ -1,9 +1,16 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # This is a wrapper script for debgraph, a tool that provides a powerful
 # interface for analyzing dependencies among Debian packages.  In
-# addition to invoking the debgraph command line tool (debgraph_cli),
-# this script performs convenient setup and cleanup tasks.
+# addition to invoking the debgraph command line tool, this script performs 
+# convenient setup and cleanup tasks.
+if [ -n "$1" ]; then
+	mkdir -p $1/out/dot
+	mkdir -p $1/cache
+	/usr/share/debgraph/scripts/S01updatecache ftp.us.debian.org unstable $1/cache
+	export DEBGRAPH_NOUPDATE=1
+fi
+
 for s in `find /usr/share/debgraph/scripts -name "S*" | sort`; do $s; done
-lua -i -e "_PROMPT=' debgraph> '" /usr/share/debgraph/setup.l
+lua -i -e "_PROMPT=' debgraph> '" /usr/share/debgraph/setup.l $1
 for s in `find /usr/share/debgraph/scripts -name "F*" | sort`; do $s; done

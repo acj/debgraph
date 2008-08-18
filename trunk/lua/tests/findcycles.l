@@ -1,3 +1,8 @@
+if _PATH == nil then
+	print('Please run setup.l first!')
+	return
+end
+
 -- CyclesToHTML(file f, table cycles, string dist)
 function CyclesToHTML (f, cycles, dist)
 	f:write("<h2>Cyclic Depends (" .. dist .. ")</h2>\n")
@@ -18,16 +23,15 @@ function CyclesToHTML (f, cycles, dist)
 				end
 			end
 			local pngFilename = 'dot/' .. dist .. '-' ..  GetProperty(comp[1], "Package") .. '.png'
-			local dotFilename = 'out/dot/' .. dist .. '-' ..  GetProperty(comp[1], "Package") .. '.dot'
 			f:write('* ' .. '<a href=\'' .. pngFilename .. '\'>' ..  comp_nodes .. '</a><br/>\n')
+			local dotFilename = _PATH .. '/out/dot/' .. dist .. '-' ..  GetProperty(comp[1], "Package") .. '.dot'
 			ToGraphviz(graph, dotFilename)
 		end
 	end
 end
 
 -- Run FindCycles in a manner similar to CyclicTest in the C++ test suite
-dofile('scripts/setup.l')
-local f = assert(io.open('cyclictest.html', 'w'))
+local f = assert(io.open(_PATH .. '/cyclictest.html', 'w'))
 
 -- Set up HTML headers
 f:write("<html>\n<body>\n<h1>CYCLICTEST</h1>\n")
