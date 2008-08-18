@@ -5,5 +5,5 @@
 # addition to invoking the debgraph command line tool (debgraph_cli),
 # this script performs convenient setup and cleanup tasks.
 for s in `find /usr/share/debgraph/scripts -name "S*" | sort`; do $s; done
-debgraph_cli
+lua -i -e "_PROMPT=' debgraph> '" /usr/share/debgraph/setup.l
 for s in `find /usr/share/debgraph/scripts -name "F*" | sort`; do $s; done

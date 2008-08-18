@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Process Graphviz .dot files into graphics.  If a first argument (file
 # or directory) is given, process it instead of the "out" directory.
 TARGET=$1

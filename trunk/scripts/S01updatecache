@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # This script fetches a copy of the Packages files for a given
 # Debian Linux distribution (e.g., "unstable").

@@ -41,14 +41,16 @@ distclean: clean
 
 install:
 	$(INSTALL) -m 755 -d /usr/share/debgraph/cache
+	$(INSTALL) -m 755 -d /usr/share/debgraph/doc
 	$(INSTALL) -m 755 -d /usr/share/debgraph/scripts
 	$(INSTALL) -s -m 755 lua/debgraph_cli $(bindir)/debgraph_cli
 	$(INSTALL) -m 755 debgraph $(bindir)/debgraph
 	$(INSTALL) -m 755 lua/libdebgraph.so $(libdir)/libdebgraph.so.0
 	@ln -f -s $(libdir)/libdebgraph.so.0 $(libdir)/libdebgraph.so
+	$(INSTALL) -m 755 -t /usr/share/debgraph/scripts scripts/*
+	$(INSTALL) -m 755 -t /usr/share/debgraph lua/scripts/*.l
 	$(MAKE) -C doc html
 	$(INSTALL) -D -m 755 doc/html/* -t /usr/share/doc/debgraph
-	$(INSTALL) -m 755 -t /usr/share/debgraph/scripts scripts/{C*,S*,F*}
 
 lua: $(TARGET)
 	$(MAKE) -C lua
