@@ -214,8 +214,14 @@ parameter values should be understood as Lua (not C) types.
 	<paramdef>string <parameter>cache_directory</parameter></paramdef>
 </funcprototype>
 </funcsynopsis>
-
-<!-- FIXME: Summary -->
+<para>
+This function loads a series of Debian package index files, each of which
+is typically named "Packages" and stored in a directory that denotes
+its architecture and distribution (e.g., "stable/main/Packages").
+These files contain detailed information about all of the software
+packages available in Debian and enable <emphasis>debgraph</emphasis>
+to perform powerful analysis on the relationships among the packages.
+</para>
 
 <funcsynopsis>
 <funcprototype>
@@ -223,8 +229,11 @@ parameter values should be understood as Lua (not C) types.
 	<paramdef>Graph <parameter>g1</parameter></paramdef>
 </funcprototype>
 </funcsynopsis>
-
-<!-- FIXME: Summary -->
+<para>
+In order to facilitate loops over a set of nodes,
+<emphasis>GetNodes</emphasis> extracts the Node objects from a given
+Graph and returns them as a table (array).
+</para>
 
 <funcsynopsis>
 <funcprototype>
@@ -232,8 +241,12 @@ parameter values should be understood as Lua (not C) types.
 	<paramdef>Graph <parameter>g1</parameter></paramdef>
 </funcprototype>
 </funcsynopsis>
-
-<!-- FIXME: Summary -->
+<para>
+Similar to the <emphasis>GetNodes</emphasis> function described above,
+<emphasis>GetNodeNames</emphasis> extracts the Node objects from a given
+Graph and builds a table (array) of only the textual names of the nodes
+(e.g., "xorg-server").
+</para>
 
 <funcsynopsis>
 <funcprototype>
@@ -242,8 +255,12 @@ parameter values should be understood as Lua (not C) types.
 	<paramdef>string <parameter>property_name</parameter></paramdef>
 </funcprototype>
 </funcsynopsis>
+<para>
+The <emphasis>GetProperty</emphasis> function retrieves a given property
+from a Node object.  Popular examples of properties include "Package"
+and "Version".
+</para>
 
-<!-- FIXME: Summary -->
 </sect1>
 
 </chapter>
