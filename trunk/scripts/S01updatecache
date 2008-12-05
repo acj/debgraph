@@ -7,7 +7,7 @@
 # 	S01updatecache [MIRROR HOST] [DIST] [CACHE DIRECTORY]
 RSYNC_SERVER=ftp.us.debian.org
 TARGET_DIST=unstable
-TARGET_DIR=/usr/share/debgraph/cache
+TARGET_DIR=`pwd`/cache
 
 if [ $DEBGRAPH_NOUPDATE ]; then
 	echo "Not updating cache!"

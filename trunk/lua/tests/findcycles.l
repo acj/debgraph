@@ -1,4 +1,4 @@
-if _PATH == nil then
+if _OUTPUT_PATH == nil then
 	print('Please run setup.l first!')
 	return
 end
@@ -24,14 +24,14 @@ function CyclesToHTML (f, cycles, dist)
 			end
 			local pngFilename = 'dot/' .. dist .. '-' ..  GetProperty(comp[1], "Package") .. '.png'
 			f:write('* ' .. '<a href=\'' .. pngFilename .. '\'>' ..  comp_nodes .. '</a><br/>\n')
-			local dotFilename = _PATH .. '/out/dot/' .. dist .. '-' ..  GetProperty(comp[1], "Package") .. '.dot'
+			local dotFilename = _OUTPUT_PATH .. '/dot/' .. dist .. '-' ..  GetProperty(comp[1], "Package") .. '.dot'
 			ToGraphviz(graph, dotFilename)
 		end
 	end
 end
 
 -- Run FindCycles in a manner similar to CyclicTest in the C++ test suite
-local f = assert(io.open(_PATH .. '/cyclictest.html', 'w'))
+local f = assert(io.open(_OUTPUT_PATH .. '/cyclictest.html', 'w'))
 
 -- Set up HTML headers
 f:write("<html>\n<body>\n<h1>CYCLICTEST</h1>\n")
