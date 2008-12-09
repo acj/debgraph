@@ -16,6 +16,14 @@ else
 	_OUTPUT_PATH = '.'
 end
 libdg = package.loadlib('libdebgraph.so', 'luaopen_libdebgraph')
+if libdg == nil then
+	-- Try the current directory instead
+	libdg = package.loadlib('./libdebgraph.so', 'luaopen_libdebgraph')
+	if libdg == nil then
+		print('Could not load the debgraph shared library!')
+		return
+	end
+end
 libdg()
 print(ShowVersion())
 print('Working directory: ' .. _OUTPUT_PATH)

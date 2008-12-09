@@ -14,7 +14,7 @@ fi
 # Set up output and cache directories, then pull the current package lists
 mkdir -p $OUT_PATH/out/dot
 mkdir -p $OUT_PATH/cache
-scripts/S01updatecache ftp.us.debian.org unstable cache
+scripts/S01updatecache ftp.us.debian.org unstable $OUT_PATH/cache
 
 # Do setup, then run debgraph, and finally do cleanup tasks
 for s in `find scripts -name "S*" | sort`; do $s; done

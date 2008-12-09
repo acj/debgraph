@@ -56,6 +56,7 @@ install:
 
 lua: $(TARGET)
 	$(MAKE) -C lua
+	@cp lua/libdebgraph.so .
 	
 setup:
 	@echo "Running setup scripts..."
@@ -63,9 +64,7 @@ setup:
 
 run: $(TARGET) setup
 	@echo "Running debgraph..."
-	@./debgraph
-	@echo "Running final scripts..."
-	-for s in `find scripts -name "F*" | grep -v "\.svn" | sort`; do $$s; done
+	@./debgraph out
 
 test: $(TARGET) setup
 	$(MAKE) -C tests run
