@@ -1,0 +1,31 @@
+T O D O
+=======
+Things to do are marked with an "+", done items should be "-". feel free to use
+this as a notepad about ideas and problems. Please note that there is a separate
+todo list for the SOC work
+
+Requirements Engineering
+------------------------
++ read through policy and make a list of all things there that we can 
+  eventually check with this tool
++ make a list of other tools that do similar things 
+  + this includes aptitude, even has a functional language
++ check them and add additional tests that they do to our list
++ identify parties that might be interested in using such a tool (e.g. QA and
+  release mgmt)
++ talk to them about ideas they have, also to other people that might have
+  ideas
+
+General
+-------
++ make the download sources configurable somehow
+
+Code
+----
++ check fixmes
++ handle arch "all" edges
++ basic operators that can be reused easily and combined
++ cycle checks operator
++ state machine operator
++ functional language using these ops
++ better output structuring

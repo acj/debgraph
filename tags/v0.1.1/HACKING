@@ -1,0 +1,24 @@
+H A C K I N G
+=============
+The basic graph definition is in entity, node, edge and graph. Entity is the
+base class for nodes and edges, with common functionality. Both have name-value
+pairs with custom properties, and a "type". The Type defines whether the
+node/edge is a binary package, a release or e.g. a dependency. Nodes also have
+an optional id that can be used to look them up directly. To make them more
+unique, they are prefixed with the node type, e.g. "Release:unstable". One
+interesting and bizarre thing to note is the string cache: entities very often
+have the same names and/or values in properties, so we just keep a reference to
+them if they are used multiple times, this saves memory. Some overly verbose
+properties are also filtered out during graph building.
+
+Debian.* contains a debian-specific graph, that can read packages (and other
+files) and populate the graph with the data in it. This also needs parser.* and
+vercmp.*.
+
+testkit is a generic factory-like thing that makes it easy to plug in "tests".
+Just have a look at nulltest to see how it works. all new test should be done
+this way.
+
+nulltest and structure are existing "tests", structure being the only usefull
+one. it does generate a graph of the connections between different types. This
+is to the actual graph what a class diagram is to an object structure.

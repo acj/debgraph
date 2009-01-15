@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+#
+# This is a wrapper script for debgraph.  In addition to invoking the debgraph
+# command line tool, this script performs convenient setup and cleanup tasks.
+OUT_PATH=""
+
+if [ -n "$1" ]; then
+	OUT_PATH=$1
+else
+	echo "Usage: $0 <output directory>"
+	exit 0
+fi
+
+# Set up output and cache directories, then pull the current package lists
+mkdir -p $OUT_PATH/out/dot
+mkdir -p $OUT_PATH/cache
+scripts/S01updatecache ftp.us.debian.org unstable $OUT_PATH/cache
+
+# Do setup, then run debgraph, and finally do cleanup tasks
+for s in `find scripts -name "S*" | sort`; do $s; done
+#lua -i -e "_PROMPT=' debgraph> '" lua/scripts/setup.l $OUT_PATH
+lua lua/scripts/setup.l $OUT_PATH
+for s in `find scripts -name "F*" | sort`; do $s; done

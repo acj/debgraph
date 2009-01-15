@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+echo "Removing directories...";
+rm -rf cache
+rm -rf out
+rm -f tests/cache
+rm -f tests/out
