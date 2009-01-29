@@ -62,7 +62,7 @@ setup:
 	@echo "Running setup scripts..."
 	-for s in `find scripts -name "S*" | grep -v "\.svn" | sort`; do $$s; done
 
-run: $(TARGET) setup
+run: $(TARGET)
 	@echo "Running debgraph..."
 	@./debgraph out
 
